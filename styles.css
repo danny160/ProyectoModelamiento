@@ -1,0 +1,189 @@
+body {
+  background: #f3f6fc;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.sim-container {
+  max-width: 900px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 28px rgba(84, 106, 220, 0.07);
+  padding: 35px 35px 30px 35px;
+}
+
+.sim-title {
+  font-size: 2rem;
+  color: #25386b;
+  font-weight: bold;
+  margin-bottom: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sim-title i {
+  color: #4344f0;
+  font-size: 1.3em;
+}
+
+.form-block {
+  background: #f7f8fa;
+  border-radius: 16px;
+  padding: 28px 22px 18px 22px;
+  margin-bottom: 20px;
+}
+
+.label-title {
+  font-size: 1.11em;
+  font-weight: 600;
+  color: #41485a;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.input-box {
+  width: 70px;
+  padding: 5px 10px;
+  font-size: 1em;
+  border: 1px solid #e5e6ef;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.input-desc {
+  font-size: 0.97em;
+  color: #7c849c;
+  margin: 8px 0 0 2px;
+}
+
+.setting-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f6;
+  margin-bottom: 2px;
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+}
+
+.setting-label {
+  font-weight: 480;
+  font-size: 1.07em;
+  color: #2c3554;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.setting-label i {
+  width: 22px;
+  min-width: 22px;
+  text-align: center;
+  font-size: 1.23em;
+}
+
+/* ==== SWITCH STYLES ==== */
+.switch-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e4e7ee;
+  transition: .4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(60,60,60,0.10);
+}
+
+.switch input:checked + .slider {
+  background-color: #ffc42a;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+/* ==== CANTIDAD (COUNTER) ==== */
+.counter-box {
+  margin-top: 5px;
+  display: none;
+  gap: 6px;
+  font-size: 1em;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.counter-btn {
+  background: #f3f7fe;
+  border: none;
+  border-radius: 6px;
+  color: #3664df;
+  font-weight: bold;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 1.2em;
+  transition: background 0.17s;
+}
+
+.counter-btn:hover {
+  background: #e6f0fa;
+}
+
+.counter-num {
+  width: 40px;
+  text-align: center;
+  font-size: 1.08em;
+  font-weight: 450;
+  user-select: none;
+}

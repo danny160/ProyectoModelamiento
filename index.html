@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulador Energético del Aula</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+</head>
+<body>
+  <div class="sim-container">
+    <div class="sim-title">
+      <i class="fas fa-bolt"></i>
+      Simulador del Aula
+    </div>
+    <form>
+      <div class="form-block">
+        <label class="label-title">Horas totales para simular:</label>
+        <div class="input-row">
+          <input type="number" class="input-box" value="8" min="1" max="24" />
+        </div>
+        <div class="input-desc">Elige las horas y ve cómo crece el consumo en vivo.</div>
+      </div>
+
+      <div class="form-block" style="padding: 13px 22px;">
+        <!-- Proyectores -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-video"></i> Proyectores</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkProyectores" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrProyectores">
+                <button type="button" class="counter-btn" onclick="updateCount('proyectores', -1)">-</button>
+                <span class="counter-num" id="proyectores">1</span>
+                <button type="button" class="counter-btn" onclick="updateCount('proyectores', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Portátiles -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-laptop"></i> Portátiles</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkPortatiles" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrPortatiles">
+                <button type="button" class="counter-btn" onclick="updateCount('portatiles', -1)">-</button>
+                <span class="counter-num" id="portatiles">0</span>
+                <button type="button" class="counter-btn" onclick="updateCount('portatiles', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Computadores de mesa -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-desktop"></i> Computadores de mesa</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkComputadores" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrComputadores">
+                <button type="button" class="counter-btn" onclick="updateCount('computadores', -1)">-</button>
+                <span class="counter-num" id="computadores">0</span>
+                <button type="button" class="counter-btn" onclick="updateCount('computadores', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pantallas OneScreen -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-tv"></i> Pantallas OneScreen</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkPantallas" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrPantallas">
+                <button type="button" class="counter-btn" onclick="updateCount('pantallas', -1)">-</button>
+                <span class="counter-num" id="pantallas">0</span>
+                <button type="button" class="counter-btn" onclick="updateCount('pantallas', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Router -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-wifi"></i> Router</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkRouter" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrRouter">
+                <button type="button" class="counter-btn" onclick="updateCount('router', -1)">-</button>
+                <span class="counter-num" id="router">0</span>
+                <button type="button" class="counter-btn" onclick="updateCount('router', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Luces -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-lightbulb" style="color:#000000;"></i> Luces</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkLuces" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrLuces">
+                <button type="button" class="counter-btn" onclick="updateCount('luces', -1)">-</button>
+                <span class="counter-num" id="luces">0</span>
+                <button type="button" class="counter-btn" onclick="updateCount('luces', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
