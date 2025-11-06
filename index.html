@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <title>Simulador Energético del Aula</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 </head>
+
 <body>
   <div class="sim-container">
     <div class="sim-title">
-      <i class="fas fa-bolt"></i>
       Simulador del Aula
+      <button class="config-btn" id="openConfig" aria-label="Abrir configuración">
+        <i class="fas fa-cog"></i>
+      </button>
     </div>
     <form>
       <div class="form-block">
@@ -22,6 +26,7 @@
       </div>
 
       <div class="form-block" style="padding: 13px 22px;">
+
         <!-- Proyectores -->
         <div class="setting-row">
           <div class="setting-header">
@@ -35,6 +40,44 @@
                 <button type="button" class="counter-btn" onclick="updateCount('proyectores', -1)">-</button>
                 <span class="counter-num" id="proyectores">1</span>
                 <button type="button" class="counter-btn" onclick="updateCount('proyectores', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- Televisores -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-tv"></i> Televisores</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkTelevisores" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrTelevisores">
+                <button type="button" class="counter-btn" onclick="updateCount('televisores', -1)">-</button>
+                <span class="counter-num" id="televisores">1</span>
+                <button type="button" class="counter-btn" onclick="updateCount('televisores', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pantallas OneScreen -->
+        <div class="setting-row">
+          <div class="setting-header">
+            <div class="setting-label"><i class="fas fa-tv"></i> Pantallas OneScreen</div>
+            <div class="switch-box">
+              <label class="switch">
+                <input type="checkbox" id="chkPantallas" />
+                <span class="slider"></span>
+              </label>
+              <div class="counter-box" id="ctrPantallas">
+                <button type="button" class="counter-btn" onclick="updateCount('pantallas', -1)">-</button>
+                <span class="counter-num" id="pantallas">0</span>
+                <button type="button" class="counter-btn" onclick="updateCount('pantallas', 1)">+</button>
               </div>
             </div>
           </div>
@@ -76,24 +119,6 @@
           </div>
         </div>
 
-        <!-- Pantallas OneScreen -->
-        <div class="setting-row">
-          <div class="setting-header">
-            <div class="setting-label"><i class="fas fa-tv"></i> Pantallas OneScreen</div>
-            <div class="switch-box">
-              <label class="switch">
-                <input type="checkbox" id="chkPantallas" />
-                <span class="slider"></span>
-              </label>
-              <div class="counter-box" id="ctrPantallas">
-                <button type="button" class="counter-btn" onclick="updateCount('pantallas', -1)">-</button>
-                <span class="counter-num" id="pantallas">0</span>
-                <button type="button" class="counter-btn" onclick="updateCount('pantallas', 1)">+</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Router -->
         <div class="setting-row">
           <div class="setting-header">
@@ -111,11 +136,11 @@
             </div>
           </div>
         </div>
-
+        
         <!-- Luces -->
         <div class="setting-row">
           <div class="setting-header">
-            <div class="setting-label"><i class="fas fa-lightbulb" style="color:#000000;"></i> Luces</div>
+            <div class="setting-label"><i class="fas fa-lightbulb" style="color:#291f1f;"></i> Luces</div>
             <div class="switch-box">
               <label class="switch">
                 <input type="checkbox" id="chkLuces" />
@@ -129,10 +154,51 @@
             </div>
           </div>
         </div>
-
       </div>
+      <button type="button" class="btn-simular">Iniciar Simulación</button>
+
     </form>
   </div>
+
+  <!-- Config Modal -->
+  <div id="configModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <h2 id="modalTitle" class="modal-header">Configuración de Consumo</h2>
+
+      <div class="modal-columns-container">
+        <div class="modal-column">
+          <label for="kwhInput">Valor de KWH</label>
+          <input type="number" id="kwhInput" min="0" step="0.01" placeholder="Valor monetario de KWH" />
+
+          <label for="consumoProyectores">Consumo Proyectores (Watts)</label>
+          <input type="number" id="consumoProyectores" min="0" placeholder="Consumo Watts Proyectores" />
+
+          <label for="consumoPortatiles">Consumo Portátiles (Watts)</label>
+          <input type="number" id="consumoPortatiles" min="0" placeholder="Consumo de Watts portatiles" />
+        </div>
+
+        <div class="modal-column">
+          <label for="consumoComputadores">Consumo Computadores de mesa (Watts)</label>
+          <input type="number" id="consumoComputadores" min="0" placeholder="Consumo Watts Computadores" />
+
+          <label for="consumoLuces">Consumo Luces (Watts):</label>
+          <input type="number" id="consumoLuces" min="0" placeholder="Consumo Watts luces" />
+
+          <label for="consumoPantallas">Consumo Pantallas OneScreen (Watts)</label>
+          <input type="number" id="consumoPantallas" min="0" placeholder="Consumo pantalla OneScreen" />
+
+          <label for="consumoRouter">Consumo Router (Watts)</label>
+          <input type="number" id="consumoRouter" min="0" placeholder="Consumo en Watts router" />
+        </div>
+      </div>
+
+      <button type="button" class="close-btn" id="closeConfig">Cerrar</button>
+    </div>
+  </div>
+
+
+
   <script src="script.js"></script>
 </body>
+
 </html>
