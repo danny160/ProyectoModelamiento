@@ -100,3 +100,58 @@ document.addEventListener("DOMContentLoaded", () => {
     span.textContent = Math.max(0, value + delta);
   };
 });
+
+
+// ---------- Enviar datos y abrir la página de simulación ----------
+document.addEventListener("DOMContentLoaded", () => {
+  const startBtn = document.getElementById("startSim");
+
+  // Lista de dispositivos (asegúrate de que coincida con tu devices)
+  const devicesList = [
+    { chkId: "chkProyectores", countId: "proyectores", label: "Proyectores", modalInputId: "consumoProyectores" },
+    { chkId: "chkTelevisores", countId: "televisores", label: "Televisores", modalInputId: "consumoTelevisores" },
+    { chkId: "chkPortatiles", countId: "portatiles", label: "Portátiles", modalInputId: "consumoPortatiles" },
+    { chkId: "chkComputadores", countId: "computadores", label: "Computadores de mesa", modalInputId: "consumoComputadores" },
+    { chkId: "chkPantallas", countId: "pantallas", label: "Pantallas OneScreen", modalInputId: "consumoPantallas" },
+    { chkId: "chkRouter", countId: "router", label: "Router", modalInputId: "consumoRouter" },
+    { chkId: "chkLuces", countId: "luces", label: "Luces", modalInputId: "consumoLuces" },
+  ];
+
+  startBtn.addEventListener("click", () => {
+    // Obtener horas desde tu input principal (si no existe, 8 por defecto)
+    const horasInput = document.querySelector(".input-box");
+    const horas = horasInput ? Number(horasInput.value) || 8 : 8;
+
+    // Obtener KWH y consumos desde los inputs del modal (si no están creados, usar 0)
+    const kwhInput = document.getElementById("kwhInput");
+    const kwhPrice = kwhInput ? Number(kwhInput.value) || 0 : 0;
+
+    // Recopilar estado de dispositivos
+    const devices = devicesList.map(dev => {
+      const chk = document.getElementById(dev.chkId);
+      const countSpan = document.getElementById(dev.countId);
+      const cnt = countSpan ? parseInt(countSpan.textContent) || 0 : 0;
+      const wattInput = document.getElementById(dev.modalInputId);
+      const watts = wattInput ? Number(wattInput.value) || 0 : 0;
+      return {
+        id: dev.chkId,
+        label: dev.label,
+        active: !!(chk && chk.checked),
+        count: cnt,
+        watts: watts
+      };
+    });
+
+    // Guardar todo en localStorage para que la nueva página lo lea
+    const payload = {
+      horas,
+      kwhPrice,
+      devices,
+      generatedAt: new Date().toISOString()
+    };
+    localStorage.setItem("simulator_payload", JSON.stringify(payload));
+
+    // Abrir la nueva página
+    window.open("simulacion.html", "_blank");
+  });
+});
