@@ -20,7 +20,7 @@
       <div class="form-block">
         <label class="label-title">Horas totales para simular:</label>
         <div class="input-row">
-          <input type="number" class="input-box" value="8" min="1" max="24" />
+          <input type="number" class="input-box" value="2" min="1" max="24" />
         </div>
         <div class="input-desc">Elige las horas y ve cómo crece el consumo en vivo.</div>
       </div>
@@ -76,7 +76,7 @@
               </label>
               <div class="counter-box" id="ctrPantallas">
                 <button type="button" class="counter-btn" onclick="updateCount('pantallas', -1)">-</button>
-                <span class="counter-num" id="pantallas">0</span>
+                <span class="counter-num" id="pantallas">1</span>
                 <button type="button" class="counter-btn" onclick="updateCount('pantallas', 1)">+</button>
               </div>
             </div>
@@ -94,7 +94,7 @@
               </label>
               <div class="counter-box" id="ctrPortatiles">
                 <button type="button" class="counter-btn" onclick="updateCount('portatiles', -1)">-</button>
-                <span class="counter-num" id="portatiles">0</span>
+                <span class="counter-num" id="portatiles">1</span>
                 <button type="button" class="counter-btn" onclick="updateCount('portatiles', 1)">+</button>
               </div>
             </div>
@@ -112,7 +112,7 @@
               </label>
               <div class="counter-box" id="ctrComputadores">
                 <button type="button" class="counter-btn" onclick="updateCount('computadores', -1)">-</button>
-                <span class="counter-num" id="computadores">0</span>
+                <span class="counter-num" id="computadores">1</span>
                 <button type="button" class="counter-btn" onclick="updateCount('computadores', 1)">+</button>
               </div>
             </div>
@@ -130,7 +130,7 @@
               </label>
               <div class="counter-box" id="ctrRouter">
                 <button type="button" class="counter-btn" onclick="updateCount('router', -1)">-</button>
-                <span class="counter-num" id="router">0</span>
+                <span class="counter-num" id="router">1</span>
                 <button type="button" class="counter-btn" onclick="updateCount('router', 1)">+</button>
               </div>
             </div>
@@ -148,7 +148,7 @@
               </label>
               <div class="counter-box" id="ctrLuces">
                 <button type="button" class="counter-btn" onclick="updateCount('luces', -1)">-</button>
-                <span class="counter-num" id="luces">0</span>
+                <span class="counter-num" id="luces">1</span>
                 <button type="button" class="counter-btn" onclick="updateCount('luces', 1)">+</button>
               </div>
             </div>
@@ -167,8 +167,7 @@
 
       <div class="modal-columns-container">
         <div class="modal-column">
-          <label for="kwhInput">Valor de KWH</label>
-          <input type="number" id="kwhInput" min="0" step="0.01" placeholder="Valor monetario de KWH" />
+         
 
           <label for="consumoProyectores">Consumo Proyectores (Watts)</label>
           <input type="number" id="consumoProyectores" min="0" placeholder="Consumo Watts Proyectores" />
@@ -182,7 +181,7 @@
           <input type="number" id="consumoComputadores" min="0" placeholder="Consumo Watts Computadores" />
 
           <label for="consumoLuces">Consumo Luces (Watts):</label>
-          <input type="number" id="consumoLuces" min="0" placeholder="Consumo Watts luces" />
+          <input type="number" id="consumoLuces" min="18" placeholder="Consumo Watts luces" />
 
           <label for="consumoPantallas">Consumo Pantallas OneScreen (Watts)</label>
           <input type="number" id="consumoPantallas" min="0" placeholder="Consumo pantalla OneScreen" />
