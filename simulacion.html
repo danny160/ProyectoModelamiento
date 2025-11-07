@@ -54,10 +54,13 @@
     }
 
     .control-restart {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 240ms;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      /* espacio entre botones */
     }
+
 
     .control-restart.visible {
       opacity: 1;
@@ -224,6 +227,7 @@
         <h1>Simulación animada — consumo acumulado (kWh)</h1>
         <div class="control-restart" id="restartControl">
           <button id="restartBtn" class="restart-btn" title="Reiniciar simulación">↻ Reiniciar</button>
+          <div><button id="backBtn" class="btn alt">Volver</button></div>
         </div>
       </header>
 
@@ -239,7 +243,6 @@
 
           <footer>
             <div class="muted">Cada segundo = 1 hora simulada</div>
-            <div><button id="backBtn" class="btn alt">Volver</button></div>
           </footer>
         </div>
 
@@ -278,7 +281,7 @@
         </div>
       </div>
 
-      <!-- Mini gráficas individuales -->
+      <!-- Mini gráficas individules -->
       <div id="individualCharts" class="row" style="margin-top:24px;"></div>
     </div>
   </div>
@@ -330,7 +333,7 @@
         const card = document.createElement("div");
         card.classList.add("chart-wrap");
         card.innerHTML = `<div style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">${d.label}</div>
-                          <div id="svg${d.id.replace("chk","")}" class="svg-container"></div>`;
+                          <div id="svg${d.id.replace("chk", "")}" class="svg-container"></div>`;
         col.appendChild(card);
         individualCharts.appendChild(col);
       });
