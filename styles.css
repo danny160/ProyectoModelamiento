@@ -78,6 +78,21 @@ body {
   margin: 8px 0 0 2px;
 }
 
+/* ---------------- Columnas del formulario principal ---------------- */
+.form-columns-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.form-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------------- Dispositivos ---------------- */
 .setting-row {
   padding: 10px 0;
   border-bottom: 1px solid #edf0f6;
@@ -204,8 +219,7 @@ body {
   display: flex;
 }
 
-
-/* Boton de simulacion */
+/* ---------------- Botón de simulación ---------------- */
 .btn-simular {
   width: 100%;
   padding: 14px 0;
@@ -227,7 +241,7 @@ body {
   filter: brightness(0.9);
 }
 
-/* Modal configuración */
+/* ---------------- Modal configuración ---------------- */
 .modal {
   display: none; 
   position: fixed; 
@@ -240,7 +254,6 @@ body {
   background-color: rgba(0,0,0,0.4);
 }
 
-/* Contenido del modal: ancho mayor y layout flexible en fila (dos columnas) */
 .modal-content {
   background-color: #fefefe;
   margin: 6% auto;
@@ -249,7 +262,7 @@ body {
   max-width: 800px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
   display: flex;
-  flex-direction: column; /* Cambiado a columna para título arriba */
+  flex-direction: column;
   gap: 20px;
 }
 
@@ -261,24 +274,21 @@ body {
   border-bottom: 1px solid #eaeaea;
   padding-bottom: 10px;
   flex-basis: auto;
-  text-align: center; /* Centra el texto del título */
+  text-align: center;
 }
 
-/* Contenedor para las columnas */
 .modal-columns-container {
   display: flex;
   flex-direction: row;
   gap: 30px;
 }
 
-/* Columnas internas */
 .modal-column {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
-
 
 .modal form {
   display: flex;
@@ -316,4 +326,11 @@ body {
 
 .close-btn:hover {
   background: #2c5dcc;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 700px) {
+  .form-columns-container {
+    flex-direction: column;
+  }
 }
