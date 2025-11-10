@@ -1,952 +1,218 @@
-<!DOCTYPE html>
-<html lang="es">
+// script.js — versión ajustada: el modal solo muestra los dispositivos activos, pero mantiene el flujo anterior
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("configModal");
+  const openBtn = document.getElementById("openConfig");
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simulación Energética — Animada (D3)</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <style>
-    :root {
-      --bg: #f3f6fc;
-      --card: #ffffff;
-      --accent: #3d7bfd;
-      --accent-2: #09cba3;
-      --muted: #7c849c;
-      --text: #25386b;
+  // Valores por defecto (realistas)
+  const defaultValues = {
+    kwhPrice: 500,
+    consumoProyectores: 300,
+    consumoTelevisores: 120,
+    consumoPortatiles: 60,
+    consumoComputadores: 200,
+    consumoPantallas: 150,
+    consumoRouter: 15,
+    consumoLuces: 15
+  };
+
+  const devices = [
+    { id: "chkProyectores", label: "Proyectores", inputId: "consumoProyectores" },
+    { id: "chkTelevisores", label: "Televisores", inputId: "consumoTelevisores" },
+    { id: "chkPortatiles", label: "Portátiles", inputId: "consumoPortatiles" },
+    { id: "chkComputadores", label: "Computadores de mesa", inputId: "consumoComputadores" },
+    { id: "chkPantallas", label: "Pantallas OneScreen", inputId: "consumoPantallas" },
+    { id: "chkRouter", label: "Router", inputId: "consumoRouter" },
+    { id: "chkLuces", label: "Luces", inputId: "consumoLuces" },
+  ];
+
+  const modalContent = modal.querySelector(".modal-content");
+
+  function getSavedConfig() {
+    try {
+      const raw = localStorage.getItem("config_consumo");
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      console.warn("config_consumo parse error:", e);
+      return null;
     }
+  }
 
-    html,
-    body {
-      height: 100%
-    }
+  function buildModalContent() {
+    const saved = getSavedConfig() || defaultValues;
 
-    body {
-      margin: 16px;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 12px auto;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 8px 28px rgba(84, 106, 220, 0.07);
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.25rem;
-      color: var(--text);
-    }
-
-    .control-restart {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 240ms;
-    }
-
-    .control-restart.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .restart-btn {
-      background: transparent;
-      border: 1px solid rgba(37, 56, 107, 0.12);
-      padding: 8px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .row {
-      display: flex;
-      gap: 18px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-
-    .col {
-      flex: 1;
-      min-width: 260px;
-    }
-
-    .chart-wrap {
-      background: linear-gradient(180deg, #fff, #fbfdff);
-      border-radius: 10px;
-      padding: 12px;
-      box-shadow: 0 8px 22px rgba(16, 45, 101, 0.04);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .dynamic-bg {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.12;
-      transition: background 600ms ease;
-      border-radius: 10px;
-    }
-
-    .indicators {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .card-ind {
-      background: #f7f9ff;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .label {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .value {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-top: 6px;
-    }
-
-    .small-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      align-items: center;
-    }
-
-    .btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .btn.alt {
-      background: var(--accent-2);
-    }
-
-    .svg-container {
-      width: 100%;
-      height: 380px;
-    }
-
-    footer {
-      margin-top: 14px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .led {
-      filter: drop-shadow(0 0 6px rgba(61, 123, 253, 0.45));
-    }
-
-    .pulse {
-      animation: pulseAnim 700ms ease;
-    }
-
-    @keyframes pulseAnim {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.08);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    @media (max-width:880px) {
-      .col {
-        min-width: unset;
-        width: 100%;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="card">
-      <header>
-        <h1>Simulación animada — consumo acumulado (kWh)</h1>
-        <div class="control-restart" id="restartControl">
-          <button id="restartBtn" class="restart-btn" title="Reiniciar simulación">↻ Reiniciar</button>
-        </div>
-      </header>
-
-      <div class="row">
-        <div class="col">
-          <div class="chart-wrap" id="chartWrap">
-            <div class="dynamic-bg" id="dynamicBg"></div>
-            <div id="svgRoot" class="svg-container"></div>
-          </div>
-
-          <div class="indicators" id="devicePctContainer"></div>
-
-          <footer>
-            <div class="muted">Cada segundo = 1 hora simulada</div>
-            <div><button id="backBtn" class="btn alt">Volver</button></div>
-          </footer>
-        </div>
-
-        <div class="col" style="max-width:360px;">
-          <div class="card-ind">
-            <div class="label">Horas a simular</div>
-            <div id="hoursVal" class="value">-- h</div>
-          </div>
-          <div class="indicators">
-            <div class="card-ind">
-              <div class="label">Consumo acumulado (Wh)</div>
-              <div id="accWh" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Consumo acumulado (kWh)</div>
-              <div id="accKwh" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">CO₂ generado (kg)</div>
-              <div id="co2" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Costo diario (COP)</div>
-              <div id="costDay" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Costo semanal (COP)</div>
-              <div id="costWeek" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Costo mensual (COP)</div>
-              <div id="costMonth" class="value">--</div>
-            </div>
-          </div>
-          <div class="small-controls"><button id="playPauseBtn" class="btn" style="display:none;">Pausa</button></div>
-        </div>
+    modalContent.innerHTML = `
+      <h2 id="modalTitle" class="modal-header">Configuración de Consumo</h2>
+      <div class="modal-columns-container"></div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:12px;">
+        <button type="button" class="save-btn" id="saveConfig">Guardar</button>
+        <button type="button" class="close-btn" id="closeConfig">Cerrar</button>
       </div>
-    </div>
-  </div>
+    `;
 
-  <script>
-    (function () {
-      const raw = localStorage.getItem("simulator_payload");
-      if (!raw) { document.body.innerHTML = '<div style="padding:40px;text-align:center">No hay datos de configuración.</div>'; return; }
-      const payload = JSON.parse(raw);
-      const horas = Math.max(1, Number(payload.horas) || 1);
-      const kwhPrice = Number(payload.kwhPrice) || 0;
-      const devices = payload.devices || [];
-      const activeDevices = devices.filter(d => d.active && d.count > 0 && d.watts > 0);
+    const container = modalContent.querySelector(".modal-columns-container");
+    const col1 = document.createElement("div");
+    col1.classList.add("modal-column");
+    const col2 = document.createElement("div");
+    col2.classList.add("modal-column");
 
-      const hoursVal = document.getElementById("hoursVal");
-      const accWhEl = document.getElementById("accWh");
-      const accKwhEl = document.getElementById("accKwh");
-      const costDayEl = document.getElementById("costDay");
-      const costWeekEl = document.getElementById("costWeek");
-      const costMonthEl = document.getElementById("costMonth");
-      const co2El = document.getElementById("co2");
-      const restartControl = document.getElementById("restartControl");
-      const restartBtn = document.getElementById("restartBtn");
-      const backBtn = document.getElementById("backBtn");
-      const playPauseBtn = document.getElementById("playPauseBtn");
-      const dynamicBg = document.getElementById("dynamicBg");
-      const chartWrap = document.getElementById("chartWrap");
-      const devicePctContainer = document.getElementById("devicePctContainer");
+    // Campo KWH (siempre visible)
+    const kwhField = document.createElement("div");
+    kwhField.innerHTML = `
+      <label for="kwhInput">Valor KWH (COP)</label>
+      <input type="number" id="kwhInput" min="0" step="0.01"
+        placeholder="Valor monetario de KWH"
+        value="${saved.kwhPrice ?? defaultValues.kwhPrice}" />
+    `;
+    col1.appendChild(kwhField);
 
-      hoursVal.textContent = horas + " h";
-      const fmtCOP = v => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Math.round(v));
+    // Mostrar inputs SOLO para dispositivos activos
+    const activeDevices = devices.filter(dev => {
+      const chk = document.getElementById(dev.id);
+      return chk && chk.checked;
+    });
 
-      // crear tarjetas de dispositivos debajo del gráfico
-      devicePctContainer.innerHTML = "";
-      activeDevices.forEach(d => {
-        const card = document.createElement("div");
-        card.classList.add("card-ind");
-        card.innerHTML = `<div class="label">${d.label}</div><div id="pct${d.id.replace("chk", "")}" class="value">0%</div>`;
-        devicePctContainer.appendChild(card);
+    if (activeDevices.length === 0) {
+      const msg = document.createElement("p");
+      msg.textContent = "No hay dispositivos activos.";
+      container.appendChild(msg);
+    } else {
+      activeDevices.forEach((dev, i) => {
+        const val = saved[dev.inputId] ?? defaultValues[dev.inputId];
+        const field = document.createElement("div");
+        field.innerHTML = `
+          <label for="${dev.inputId}">Consumo ${dev.label} (Watts):</label>
+          <input type="number" id="${dev.inputId}" min="0"
+            value="${val}" placeholder="Consumo ${dev.label}" />
+        `;
+        if (i % 2 === 0) col1.appendChild(field);
+        else col2.appendChild(field);
+      });
+    }
+
+    container.appendChild(col1);
+    container.appendChild(col2);
+
+    // Cerrar modal
+    modalContent.querySelector("#closeConfig").addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    // Guardar configuración (solo los visibles + precio KWH)
+    modalContent.querySelector("#saveConfig").addEventListener("click", () => {
+      const currentConfig = getSavedConfig() || { ...defaultValues };
+      const newConfig = { ...currentConfig };
+
+      const kwhInput = document.getElementById("kwhInput");
+      if (kwhInput) newConfig.kwhPrice = Number(kwhInput.value) || defaultValues.kwhPrice;
+
+      activeDevices.forEach(dev => {
+        const input = document.getElementById(dev.inputId);
+        if (input) newConfig[dev.inputId] = Number(input.value) || defaultValues[dev.inputId];
       });
 
-      const margin = { top: 18, right: 26, bottom: 36, left: 64 };
-      const container = d3.select("#svgRoot");
-      const width = container.node().clientWidth;
-      const height = 380;
-      const svg = container.append("svg").attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
-      const plotW = width - margin.left - margin.right;
-      const plotH = height - margin.top - margin.bottom;
-      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-      const x = d3.scaleLinear().domain([1, Math.max(2, horas)]).range([0, plotW]);
-      const maxExpected = activeDevices.reduce((sum, d) => sum + d.watts * d.count / 1000 * horas, 0.001);
-      const y = d3.scaleLinear().domain([0, maxExpected * 1.12]).range([plotH, 0]);
-      g.append("g").attr("transform", `translate(0,${plotH})`).call(d3.axisBottom(x).ticks(Math.min(horas, 12)).tickFormat(d => d + "h"));
-      const gy = g.append("g").call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2) + " kWh"));
-      g.append("g").attr("class", "grid").selectAll("line").data(y.ticks(6)).enter().append("line").attr("x1", 0).attr("x2", plotW).attr("y1", d => y(d)).attr("y2", d => y(d)).attr("stroke", "#eef4ff").attr("stroke-width", 1);
+      localStorage.setItem("config_consumo", JSON.stringify(newConfig));
+      // Crear y mostrar mensaje flotante
+      const notif = document.createElement("div");
+      notif.className = "save-notification";
+      notif.textContent = "Configuración guardada correctamente ✅";
+      document.body.appendChild(notif);
 
-      const area = d3.area().x(d => x(d.hour)).y0(plotH).y1(d => y(d.kwh)).curve(d3.curveMonotoneX);
-      const line = d3.line().x(d => x(d.hour)).y(d => y(d.kwh)).curve(d3.curveMonotoneX);
-      const areaPath = g.append("path").attr("fill", "rgba(61,123,253,0.12)").attr("opacity", 0.95);
-      const linePath = g.append("path").attr("fill", "none").attr("stroke", "url(#lineGradient)").attr("stroke-width", 2.6);
-      const defs = svg.append("defs");
-      const grad = defs.append("linearGradient").attr("id", "lineGradient").attr("x1", "0%").attr("x2", "100%");
-      grad.append("stop").attr("offset", "0%").attr("stop-color", "#09cba3");
-      grad.append("stop").attr("offset", "100%").attr("stop-color", "#3d7bfd");
-      const led = g.append("circle").attr("r", 5).attr("class", "led").attr("fill", "#3d7bfd").attr("cx", -10).attr("cy", plotH);
-      const labelGroup = g.append("g").attr("transform", "translate(10,10)").style("opacity", 0);
-      labelGroup.append("rect").attr("width", 120).attr("height", 36).attr("rx", 8).attr("fill", "#ffffff").attr("stroke", "#e6eefc");
-      const labelText = labelGroup.append("text").attr("x", 8).attr("y", 20).attr("fill", "#25386b").style("font-size", "12px").style("font-weight", "700");
-      svg.append("text").attr("x", margin.left + 6).attr("y", margin.top - 6).attr("fill", "#7c849c").style("font-size", "12px").text("Consumo acumulado (kWh)");
+      // Animar entrada y salida
+      setTimeout(() => {
+        notif.classList.add("show");
+      }, 10);
 
-      let data = [];
-      let hourIndex = 0;
-      let running = true;
-      let intervalId = null;
-      const CO2_FACTOR = 0.43;
+      setTimeout(() => {
+        notif.classList.remove("show");
+        setTimeout(() => notif.remove(), 500);
+      }, 3000);
 
-      function animateNumber(el, start, end, duration = 650, fmt = v => v) {
-        const interp = d3.interpolateNumber(start, end);
-        const t0 = performance.now();
-        (function tick(now) {
-          const t = Math.min(1, (now - t0) / duration);
-          el.textContent = fmt(interp(t));
-          if (t < 1) requestAnimationFrame(tick);
-        })(performance.now());
-      }
+      modal.style.display = "none";
+    });
+  }
 
-      function updateNumbers(kwhAcc) {
-        const whAcc = kwhAcc * 1000;
-        animateNumber(accWhEl, parseFloat(accWhEl._val || 0), whAcc, 1000, v => v.toLocaleString('es-CO') + " Wh"); accWhEl._val = whAcc;
-        animateNumber(accKwhEl, parseFloat(accKwhEl._val || 0), kwhAcc, 1000, v => v.toFixed(3) + " kWh"); accKwhEl._val = kwhAcc;
-        const costDay = kwhAcc * kwhPrice, costWeek = costDay * 7, costMonth = costDay * 30, co2 = kwhAcc * CO2_FACTOR;
-        animateNumber(costDayEl, parseFloat(costDayEl._val || 0), costDay, 1000, v => fmtCOP(v)); costDayEl._val = costDay;
-        animateNumber(costWeekEl, parseFloat(costWeekEl._val || 0), costWeek, 1000, v => fmtCOP(v)); costWeekEl._val = costWeek;
-        animateNumber(costMonthEl, parseFloat(costMonthEl._val || 0), costMonth, 1000, v => fmtCOP(v)); costMonthEl._val = costMonth;
-        animateNumber(co2El, parseFloat(co2El._val || 0), co2, 1000, v => v.toFixed(3) + " kg"); co2El._val = co2;
+  // Abrir modal
+  openBtn.addEventListener("click", () => {
+    buildModalContent();
+    modal.style.display = "block";
+  });
 
-        activeDevices.forEach(d => {
-          const devKwh = d.watts * d.count / 1000 * hourIndex;
-          const pct = kwhAcc ? (devKwh / kwhAcc) * 100 : 0;
-          const el = document.getElementById("pct" + d.id.replace("chk", ""));
-          if (el) {
-            const start = parseFloat(el._val || 0);
-            const end = pct;
-            const duration = 1000;
-            const t0 = performance.now();
-            (function tick(now) {
-              const t = Math.min(1, (now - t0) / duration);
-              const value = start + (end - start) * t;
-              el.textContent = value.toFixed(1) + "%";
-              if (value < 33) el.parentElement.style.background = "#d4f7dc";
-              else if (value < 66) el.parentElement.style.background = "#fff4b1";
-              else el.parentElement.style.background = "#ffbaba";
-              if (t < 1) requestAnimationFrame(tick);
-              else el._val = end;
-            })(performance.now());
-          }
-        });
-      }
+  // Cerrar por click fuera
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  });
 
-      function updateBackground(kwhAcc) {
-        const ratio = Math.min(1, kwhAcc / maxExpected);
-        let color;
-        if (ratio < 0.5) color = `linear-gradient(180deg, rgba(9,203,163,${0.09 + ratio * 0.14}), rgba(61,123,253,${0.06 + ratio * 0.09}))`;
-        else if (ratio < 0.85) color = `linear-gradient(180deg, rgba(255,223,93,${0.09 + ratio * 0.12}), rgba(61,123,253,${0.05 + ratio * 0.08}))`;
-        else color = `linear-gradient(180deg, rgba(255,92,92,${0.10 + ratio * 0.15}), rgba(61,123,253,${0.04 + ratio * 0.06}))`;
-        dynamicBg.style.background = color;
-      }
+  // Mostrar/ocultar contadores según switches
+  function toggleCounter(switchId, counterId) {
+    const sw = document.getElementById(switchId);
+    const box = document.getElementById(counterId);
+    if (sw && box) box.style.display = sw.checked ? "flex" : "none";
+  }
 
-      function updateScalesAndAxes(maxKwh) {
-        const newMax = Math.max(maxKwh * 1.12, 0.001);
-        y.domain([0, newMax]);
-        gy.transition().duration(450).call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2) + " kWh"));
-        g.selectAll(".grid").selectAll("line").data(y.ticks(6)).join("line").transition().duration(450).attr("x1", 0).attr("x2", plotW).attr("y1", d => y(d)).attr("y2", d => y(d));
-      }
+  ["chkProyectores", "chkTelevisores", "chkPortatiles", "chkComputadores", "chkPantallas", "chkRouter", "chkLuces"].forEach((id) => {
+    const counterId = "ctr" + id.replace("chk", "");
+    const checkbox = document.getElementById(id);
+    toggleCounter(id, counterId);
+    if (checkbox) checkbox.addEventListener("change", () => toggleCounter(id, counterId));
+  });
 
-      function renderChart() {
-        x.domain([1, Math.max(2, horas)]);
-        g.select("g").transition().duration(250).call(d3.axisBottom(x).ticks(Math.min(horas, 12)).tickFormat(d => d + "h"));
-        areaPath.datum(data).attr("d", area);
-        linePath.datum(data).attr("d", line);
-        const last = data[data.length - 1];
-        if (last) led.transition().duration(450).attr("cx", x(last.hour)).attr("cy", y(last.kwh)).attr("r", 5).attr("class", "led pulse");
-      }
+  // Contador simple
+  window.updateCount = function (id, delta) {
+    const span = document.getElementById(id);
+    let value = parseInt(span.textContent);
+    if (isNaN(value)) value = 0;
+    span.textContent = Math.max(0, value + delta);
+  };
+});
 
-      function step() {
-        if (hourIndex >= horas) { clearInterval(intervalId); return; }
-        hourIndex++;
-        const kwhAcc = activeDevices.reduce((sum, d) => sum + d.watts * d.count / 1000 * hourIndex, 0);
-        data.push({ hour: hourIndex, kwh: kwhAcc });
-        updateNumbers(kwhAcc);
-        updateBackground(kwhAcc);
-        updateScalesAndAxes(kwhAcc);
-        renderChart();
-      }
+// ---------- Enviar datos y abrir simulación ----------
+document.addEventListener("DOMContentLoaded", () => {
+  const startBtn = document.getElementById("startSim");
 
-      intervalId = setInterval(() => { if (running) step(); }, 650);
-      restartControl.classList.add("visible");
-      restartBtn.addEventListener("click", () => location.reload());
-      backBtn.addEventListener("click", () => window.close());
-      playPauseBtn.addEventListener("click", () => running = !running);
-    })();
-  </script>
-</body>
+  const devicesList = [
+    { chkId: "chkProyectores", countId: "proyectores", label: "Proyectores", modalInputId: "consumoProyectores" },
+    { chkId: "chkTelevisores", countId: "televisores", label: "Televisores", modalInputId: "consumoTelevisores" },
+    { chkId: "chkPortatiles", countId: "portatiles", label: "Portátiles", modalInputId: "consumoPortatiles" },
+    { chkId: "chkComputadores", countId: "computadores", label: "Computadores de mesa", modalInputId: "consumoComputadores" },
+    { chkId: "chkPantallas", countId: "pantallas", label: "Pantallas OneScreen", modalInputId: "consumoPantallas" },
+    { chkId: "chkRouter", countId: "router", label: "Router", modalInputId: "consumoRouter" },
+    { chkId: "chkLuces", countId: "luces", label: "Luces", modalInputId: "consumoLuces" },
+  ];
 
-</html>
-
-<!-- ---------------------------------------------------------------------------------------------------------------- -->
-<!-- muesta de simulaciones -->
- <!DOCTYPE html>
-<html lang="es">
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simulación Energética — Animada (D3)</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <style>
-    :root {
-      --bg: #f3f6fc;
-      --card: #ffffff;
-      --accent: #3d7bfd;
-      --accent-2: #09cba3;
-      --muted: #7c849c;
-      --text: #25386b;
+  function getEffectiveConfig() {
+    const raw = localStorage.getItem("config_consumo");
+    if (!raw) return { ...defaultValues };
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return { ...defaultValues };
     }
+  }
 
-    html,
-    body {
-      height: 100%
-    }
+  startBtn.addEventListener("click", () => {
+    const horasInput = document.querySelector(".input-box");
+    const horas = horasInput ? Number(horasInput.value) || 8 : 8;
 
-    body {
-      margin: 16px;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+    const cfg = getEffectiveConfig();
+    const kwhPrice = cfg.kwhPrice || 0;
 
-    .container {
-      max-width: 1100px;
-      margin: 12px auto;
-    }
+    const devices = devicesList.map(dev => {
+      const chk = document.getElementById(dev.chkId);
+      const countSpan = document.getElementById(dev.countId);
+      const cnt = countSpan ? parseInt(countSpan.textContent) || 0 : 0;
+      const watts = cfg[dev.modalInputId] ?? 0;
+      return { id: dev.chkId, label: dev.label, active: !!(chk && chk.checked), count: cnt, watts };
+    });
 
-    .card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 8px 28px rgba(84, 106, 220, 0.07);
-    }
+    const payload = {
+      horas,
+      kwhPrice,
+      devices,
+      generatedAt: new Date().toISOString()
+    };
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.25rem;
-      color: var(--text);
-    }
-
-    .control-restart {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 240ms;
-    }
-
-    .control-restart.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .restart-btn {
-      background: transparent;
-      border: 1px solid rgba(37, 56, 107, 0.12);
-      padding: 8px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .row {
-      display: flex;
-      gap: 18px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-
-    .col {
-      flex: 1;
-      min-width: 260px;
-    }
-
-    .chart-wrap {
-      background: linear-gradient(180deg, #fff, #fbfdff);
-      border-radius: 10px;
-      padding: 12px;
-      box-shadow: 0 8px 22px rgba(16, 45, 101, 0.04);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .dynamic-bg {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.12;
-      transition: background 600ms ease;
-      border-radius: 10px;
-    }
-
-    .indicators {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .card-ind {
-      background: #f7f9ff;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .label {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .value {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-top: 6px;
-    }
-
-    .small-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      align-items: center;
-    }
-
-    .btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .btn.alt {
-      background: var(--accent-2);
-    }
-
-    .svg-container {
-      width: 100%;
-      height: 380px;
-    }
-
-    footer {
-      margin-top: 14px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .led {
-      filter: drop-shadow(0 0 6px rgba(61, 123, 253, 0.45));
-    }
-
-    .pulse {
-      animation: pulseAnim 700ms ease;
-    }
-
-    @keyframes pulseAnim {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.08);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    .tooltip {
-      position: absolute;
-      pointer-events: none;
-      background: white;
-      border: 1px solid #e6eefc;
-      padding: 8px 12px;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-      font-size: 0.85rem;
-      color: #25386b;
-      z-index: 10;
-      opacity: 0;
-      transition: opacity 0.3s;
-      white-space: nowrap;
-    }
-
-    @media (max-width:880px) {
-      .col {
-        min-width: unset;
-        width: 100%;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="card">
-      <header>
-        <h1>Simulación animada — consumo acumulado (kWh)</h1>
-        <div class="control-restart" id="restartControl">
-          <button id="restartBtn" class="restart-btn" title="Reiniciar simulación">↻ Reiniciar</button>
-        </div>
-      </header>
-
-      <div class="row">
-        <div class="col">
-          <!-- Gráfica General -->
-          <div class="chart-wrap" id="chartWrap">
-            <div class="dynamic-bg" id="dynamicBg"></div>
-            <div id="svgRoot" class="svg-container"></div>
-          </div>
-
-          <div class="indicators" id="devicePctContainer"></div>
-
-          <footer>
-            <div class="muted">Cada segundo = 1 hora simulada</div>
-            <div><button id="backBtn" class="btn alt">Volver</button></div>
-          </footer>
-        </div>
-
-        <div class="col" style="max-width:360px;">
-          <div class="card-ind">
-            <div class="label">Horas a simular</div>
-            <div id="hoursVal" class="value">-- h</div>
-          </div>
-          <div class="indicators">
-            <div class="card-ind">
-              <div class="label">Consumo acumulado (Wh)</div>
-              <div id="accWh" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Consumo acumulado (kWh)</div>
-              <div id="accKwh" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">CO₂ generado (kg)</div>
-              <div id="co2" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Costo diario (COP)</div>
-              <div id="costDay" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Costo semanal (COP)</div>
-              <div id="costWeek" class="value">--</div>
-            </div>
-            <div class="card-ind">
-              <div class="label">Costo mensual (COP)</div>
-              <div id="costMonth" class="value">--</div>
-            </div>
-          </div>
-          <div class="small-controls"><button id="playPauseBtn" class="btn" style="display:none;">Pausa</button></div>
-        </div>
-      </div>
-
-      <!-- Mini gráficas individuales -->
-      <div id="individualCharts" class="row" style="margin-top:24px;"></div>
-    </div>
-  </div>
-
-  <script>
-    (function () {
-      const raw = localStorage.getItem("simulator_payload");
-      if (!raw) { document.body.innerHTML = '<div style="padding:40px;text-align:center">No hay datos de configuración.</div>'; return; }
-      const payload = JSON.parse(raw);
-      const horas = Math.max(1, Number(payload.horas) || 1);
-      const kwhPrice = Number(payload.kwhPrice) || 0;
-      const devices = payload.devices || [];
-      const activeDevices = devices.filter(d => d.active && d.count > 0 && d.watts > 0);
-
-      const hoursVal = document.getElementById("hoursVal");
-      const accWhEl = document.getElementById("accWh");
-      const accKwhEl = document.getElementById("accKwh");
-      const costDayEl = document.getElementById("costDay");
-      const costWeekEl = document.getElementById("costWeek");
-      const costMonthEl = document.getElementById("costMonth");
-      const co2El = document.getElementById("co2");
-      const restartControl = document.getElementById("restartControl");
-      const restartBtn = document.getElementById("restartBtn");
-      const backBtn = document.getElementById("backBtn");
-      const playPauseBtn = document.getElementById("playPauseBtn");
-      const dynamicBg = document.getElementById("dynamicBg");
-      const chartWrap = document.getElementById("chartWrap");
-      const devicePctContainer = document.getElementById("devicePctContainer");
-      const individualCharts = document.getElementById("individualCharts");
-
-      hoursVal.textContent = horas + " h";
-      const fmtCOP = v => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Math.round(v));
-
-      // crear tarjetas de dispositivos debajo del gráfico
-      devicePctContainer.innerHTML = "";
-      activeDevices.forEach(d => {
-        const card = document.createElement("div");
-        card.classList.add("card-ind");
-        card.innerHTML = `<div class="label">${d.label}</div><div id="pct${d.id.replace("chk", "")}" class="value">0%</div>`;
-        devicePctContainer.appendChild(card);
-      });
-
-      // crear mini gráficas individuales
-      individualCharts.innerHTML = "";
-      activeDevices.forEach(d => {
-        const col = document.createElement("div");
-        col.classList.add("col");
-        col.style.minWidth = "300px";
-        const card = document.createElement("div");
-        card.classList.add("chart-wrap");
-        card.innerHTML = `<div style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">${d.label}</div>
-                          <div id="svg${d.id.replace("chk","")}" class="svg-container"></div>`;
-        col.appendChild(card);
-        individualCharts.appendChild(col);
-      });
-
-      // Escalas y gráfico general
-      const margin = { top: 18, right: 26, bottom: 36, left: 64 };
-      const container = d3.select("#svgRoot");
-      const width = container.node().clientWidth;
-      const height = 380;
-      const svg = container.append("svg").attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
-      const plotW = width - margin.left - margin.right;
-      const plotH = height - margin.top - margin.bottom;
-      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-      const x = d3.scaleLinear().domain([1, Math.max(2, horas)]).range([0, plotW]);
-      const maxExpected = activeDevices.reduce((sum, d) => sum + d.watts * d.count / 1000 * horas, 0.001);
-      const y = d3.scaleLinear().domain([0, maxExpected * 1.12]).range([plotH, 0]);
-      g.append("g").attr("transform", `translate(0,${plotH})`).call(d3.axisBottom(x).ticks(Math.min(horas, 12)).tickFormat(d => d + "h"));
-      const gy = g.append("g").call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2) + " kWh"));
-      g.append("g").attr("class", "grid").selectAll("line").data(y.ticks(6)).enter().append("line").attr("x1", 0).attr("x2", plotW).attr("y1", d => y(d)).attr("y2", d => y(d)).attr("stroke", "#eef4ff").attr("stroke-width", 1);
-
-      const area = d3.area().x(d => x(d.hour)).y0(plotH).y1(d => y(d.kwh)).curve(d3.curveMonotoneX);
-      const line = d3.line().x(d => x(d.hour)).y(d => y(d.kwh)).curve(d3.curveMonotoneX);
-      const areaPath = g.append("path").attr("fill", "rgba(61,123,253,0.12)").attr("opacity", 0.95);
-      const linePath = g.append("path").attr("fill", "none").attr("stroke", "url(#lineGradient)").attr("stroke-width", 2.6);
-      const defs = svg.append("defs");
-      const grad = defs.append("linearGradient").attr("id", "lineGradient").attr("x1", "0%").attr("x2", "100%");
-      grad.append("stop").attr("offset", "0%").attr("stop-color", "#09cba3");
-      grad.append("stop").attr("offset", "100%").attr("stop-color", "#3d7bfd");
-      const led = g.append("circle").attr("r", 5).attr("class", "led").attr("fill", "#3d7bfd").attr("cx", -10).attr("cy", plotH);
-
-      // Tooltip
-      const tooltip = d3.select("body").append("div").attr("class", "tooltip");
-
-      let data = [];
-      let hourIndex = 0;
-      let running = true;
-      let intervalId = null;
-      const CO2_FACTOR = 0.43;
-
-      function animateNumber(el, start, end, duration = 650, fmt = v => v) {
-        const interp = d3.interpolateNumber(start, end);
-        const t0 = performance.now();
-        (function tick(now) {
-          const t = Math.min(1, (now - t0) / duration);
-          el.textContent = fmt(interp(t));
-          if (t < 1) requestAnimationFrame(tick);
-        })(performance.now());
-      }
-
-      function updateNumbers(kwhAcc) {
-        const whAcc = kwhAcc * 1000;
-        animateNumber(accWhEl, parseFloat(accWhEl._val || 0), whAcc, 700, v => v.toLocaleString('es-CO') + " Wh"); accWhEl._val = whAcc;
-        animateNumber(accKwhEl, parseFloat(accKwhEl._val || 0), kwhAcc, 700, v => v.toFixed(3) + " kWh"); accKwhEl._val = kwhAcc;
-        const costDay = kwhAcc * kwhPrice, costWeek = costDay * 7, costMonth = costDay * 30, co2 = kwhAcc * CO2_FACTOR;
-        animateNumber(costDayEl, parseFloat(costDayEl._val || 0), costDay, 700, v => fmtCOP(v)); costDayEl._val = costDay;
-        animateNumber(costWeekEl, parseFloat(costWeekEl._val || 0), costWeek, 700, v => fmtCOP(v)); costWeekEl._val = costWeek;
-        animateNumber(costMonthEl, parseFloat(costMonthEl._val || 0), costMonth, 700, v => fmtCOP(v)); costMonthEl._val = costMonth;
-        animateNumber(co2El, parseFloat(co2El._val || 0), co2, 700, v => v.toFixed(3) + " kg"); co2El._val = co2;
-
-        activeDevices.forEach(d => {
-          const devKwh = d.watts * d.count / 1000 * hourIndex;
-          const pct = kwhAcc ? (devKwh / kwhAcc) * 100 : 0;
-          const el = document.getElementById("pct" + d.id.replace("chk", ""));
-          if (el) {
-            const start = parseFloat(el._val || 0);
-            const end = pct;
-            const duration = 650;
-            const t0 = performance.now();
-            (function tick(now) {
-              const t = Math.min(1, (now - t0) / duration);
-              const value = start + (end - start) * t;
-              el.textContent = value.toFixed(1) + "%";
-
-              if (value < 33) el.parentElement.style.background = "#d4f7dc";
-              else if (value < 66) el.parentElement.style.background = "#fff4b1";
-              else el.parentElement.style.background = "#ffbaba";
-
-              if (t < 1) requestAnimationFrame(tick);
-              else el._val = end;
-            })(performance.now());
-          }
-        });
-      }
-
-      function updateBackground(kwhAcc) {
-        const ratio = Math.min(1, kwhAcc / maxExpected);
-        let color;
-        if (ratio < 0.5) color = `linear-gradient(180deg, rgba(9,203,163,${0.09 + ratio * 0.14}), rgba(61,123,253,${0.06 + ratio * 0.09}))`;
-        else if (ratio < 0.85) color = `linear-gradient(180deg, rgba(255,223,93,${0.09 + ratio * 0.12}), rgba(61,123,253,${0.05 + ratio * 0.08}))`;
-        else color = `linear-gradient(180deg, rgba(255,92,92,${0.10 + ratio * 0.15}), rgba(61,123,253,${0.04 + ratio * 0.06}))`;
-        dynamicBg.style.background = color;
-      }
-
-      function updateScalesAndAxes(maxKwh) {
-        const newMax = Math.max(maxKwh * 1.12, 0.001);
-        y.domain([0, newMax]);
-        gy.transition().duration(450).call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2) + " kWh"));
-        g.selectAll(".grid").selectAll("line").data(y.ticks(6)).join("line").transition().duration(450).attr("x1", 0).attr("x2", plotW).attr("y1", d => y(d)).attr("y2", d => y(d));
-      }
-
-      function renderChart() {
-        x.domain([1, Math.max(2, horas)]);
-        g.select("g").transition().duration(250).call(d3.axisBottom(x).ticks(Math.min(horas, 12)).tickFormat(d => d + "h"));
-        areaPath.datum(data).attr("d", area);
-        linePath.datum(data).attr("d", line);
-        const last = data[data.length - 1];
-        if (last) led.transition().duration(450).attr("cx", x(last.hour)).attr("cy", y(last.kwh)).attr("r", 5).attr("class", "led pulse");
-      }
-
-      function step() {
-        if (hourIndex >= horas) { clearInterval(intervalId); return; }
-        hourIndex++;
-        const kwhAcc = activeDevices.reduce((sum, d) => sum + d.watts * d.count / 1000 * hourIndex, 0);
-        data.push({ hour: hourIndex, kwh: kwhAcc });
-        updateNumbers(kwhAcc);
-        updateBackground(kwhAcc);
-        updateScalesAndAxes(kwhAcc);
-        renderChart();
-      }
-
-      intervalId = setInterval(() => { if (running) step(); }, 650);
-      restartControl.classList.add("visible");
-      restartBtn.addEventListener("click", () => location.reload());
-      backBtn.addEventListener("click", () => window.close());
-      playPauseBtn.addEventListener("click", () => running = !running);
-
-      // Tooltip interaction para gráfica principal
-      svg.on("mousemove", (event) => {
-        const [mx] = d3.pointer(event);
-        const hour = Math.round(x.invert(mx - margin.left));
-        if (hour < 1 || hour > horas) { tooltip.style("opacity", 0); return; }
-        const kwhAcc = activeDevices.reduce((sum, d) => sum + d.watts * d.count / 1000 * hour, 0);
-        tooltip.style("opacity", 1)
-          .style("left", (event.pageX + 16) + "px")
-          .style("top", (event.pageY - 28) + "px")
-          .html(() => {
-            let html = `<strong>Hora:</strong> ${hour} h<br>`;
-            html += `<strong>Total:</strong> ${kwhAcc.toFixed(3)} kWh<br>`;
-            html += `<strong>CO₂:</strong> ${(kwhAcc * CO2_FACTOR).toFixed(3)} kg<br>`;
-            html += `<strong>Costo diario:</strong> ${fmtCOP(kwhAcc * kwhPrice)}<br>`;
-            activeDevices.forEach(d => {
-              const devKwh = d.watts * d.count / 1000 * hour;
-              const pct = kwhAcc ? (devKwh / kwhAcc) * 100 : 0;
-              html += `<strong>${d.label}:</strong> ${devKwh.toFixed(3)} kWh (${pct.toFixed(1)}%)<br>`;
-            });
-            return html;
-          });
-      }).on("mouseleave", () => tooltip.style("opacity", 0));
-
-      // Mini gráficas individuales
-      activeDevices.forEach(d => {
-        const svgId = "#svg" + d.id.replace("chk", "");
-        const container = d3.select(svgId);
-        const w = container.node().clientWidth;
-        const h = 200;
-        const svgDev = container.append("svg").attr("width", w).attr("height", h).attr("viewBox", `0 0 ${w} ${h}`);
-        const marginDev = { top: 12, right: 12, bottom: 24, left: 36 };
-        const plotWDev = w - marginDev.left - marginDev.right;
-        const plotHDev = h - marginDev.top - marginDev.bottom;
-        const gDev = svgDev.append("g").attr("transform", `translate(${marginDev.left},${marginDev.top})`);
-        const xDev = d3.scaleLinear().domain([1, Math.max(2, horas)]).range([0, plotWDev]);
-        const yDev = d3.scaleLinear().domain([0, d.watts * d.count / 1000 * horas * 1.12]).range([plotHDev, 0]);
-        gDev.append("g").attr("transform", `translate(0,${plotHDev})`).call(d3.axisBottom(xDev).ticks(Math.min(horas, 6)).tickFormat(d => d + "h"));
-        gDev.append("g").call(d3.axisLeft(yDev).ticks(4).tickFormat(d => d.toFixed(2)));
-        const areaDev = d3.area().x(d => xDev(d.hour)).y0(plotHDev).y1(d => yDev(d.kwh)).curve(d3.curveMonotoneX);
-        const lineDev = d3.line().x(d => xDev(d.hour)).y(d => yDev(d.kwh)).curve(d3.curveMonotoneX);
-        const areaPathDev = gDev.append("path").attr("fill", "rgba(61,123,253,0.12)").attr("opacity", 0.95);
-        const linePathDev = gDev.append("path").attr("fill", "none").attr("stroke", "#3d7bfd").attr("stroke-width", 2.2);
-
-        function updateDev(hour) {
-          const devData = [];
-          for (let i = 1; i <= hour; i++) devData.push({ hour: i, kwh: d.watts * d.count / 1000 * i });
-          areaPathDev.datum(devData).attr("d", areaDev);
-          linePathDev.datum(devData).attr("d", lineDev);
-        }
-
-        // Animar mini gráficos con cada paso
-        const origStep = step;
-        step = function () {
-          origStep();
-          updateDev(hourIndex);
-        }
-      });
-
-    })();
-  </script>
-</body>
-
-</html>
-
+    localStorage.setItem("simulator_payload", JSON.stringify(payload));
+    window.open("simulacion.html", "_blank");
+  });
+});
