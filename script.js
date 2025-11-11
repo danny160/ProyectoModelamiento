@@ -1,218 +1,242 @@
-// script.js — versión ajustada: el modal solo muestra los dispositivos activos, pero mantiene el flujo anterior
 document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("configModal");
-  const openBtn = document.getElementById("openConfig");
+  const tipoEscenario = document.getElementById("tipoEscenario");
+  const startBtn = document.getElementById("startSim");
+  const devicesContainer = document.getElementById("devicesContainer");
+  const toastContainer = document.getElementById("toastContainer");
 
-  // Valores por defecto (realistas)
-  const defaultValues = {
-    kwhPrice: 500,
-    consumoProyectores: 300,
-    consumoTelevisores: 120,
-    consumoPortatiles: 60,
-    consumoComputadores: 200,
-    consumoPantallas: 150,
-    consumoRouter: 15,
-    consumoLuces: 15
+  startBtn.style.display = "none";
+
+  const devicesByScenario = {
+    salon: [
+      { id: "chkTelevisores", label: "Televisores", icon: "fa-tv" },
+      { id: "chkProyectores", label: "Proyectores", icon: "fa-video" },
+      { id: "chkPortatiles", label: "Portátiles", icon: "fa-laptop" },
+      { id: "chkTelefonos", label: "Teléfonos", icon: "fa-mobile-alt" },
+      { id: "chkLuces", label: "Luces", icon: "fa-lightbulb" },
+    ],
+    lab: [
+      { id: "chkTelevisores", label: "Televisores", icon: "fa-tv" },
+      { id: "chkPantallas", label: "Pantallas OneScreen", icon: "fa-tv" },
+      { id: "chkPortatiles", label: "Portátiles", icon: "fa-laptop" },
+      { id: "chkComputadores", label: "Computadores de mesa", icon: "fa-desktop" },
+      { id: "chkRouter", label: "Router", icon: "fa-wifi" },
+      { id: "chkTelefonos", label: "Teléfonos", icon: "fa-mobile-alt" },
+      { id: "chkLuces", label: "Luces", icon: "fa-lightbulb" },
+    ],
   };
 
-  const devices = [
-    { id: "chkProyectores", label: "Proyectores", inputId: "consumoProyectores" },
-    { id: "chkTelevisores", label: "Televisores", inputId: "consumoTelevisores" },
-    { id: "chkPortatiles", label: "Portátiles", inputId: "consumoPortatiles" },
-    { id: "chkComputadores", label: "Computadores de mesa", inputId: "consumoComputadores" },
-    { id: "chkPantallas", label: "Pantallas OneScreen", inputId: "consumoPantallas" },
-    { id: "chkRouter", label: "Router", inputId: "consumoRouter" },
-    { id: "chkLuces", label: "Luces", inputId: "consumoLuces" },
-  ];
+  const deviceData = {
+    Televisores: [
+      { marca: "Samsung", consumo: 100 },
+      { marca: "LG", consumo: 120 },
+      { marca: "Sony", consumo: 110 },
+    ],
+    Proyectores: [
+      { marca: "Epson", consumo: 200 },
+      { marca: "BenQ", consumo: 180 },
+    ],
+    Portátiles: [
+      { marca: "HP", consumo: 60 },
+      { marca: "Lenovo", consumo: 70 },
+      { marca: "Dell", consumo: 65 },
+    ],
+    Luces: [
+      { marca: "Philips", consumo: 15 },
+      { marca: "Osram", consumo: 18 },
+    ],
+    "Computadores de mesa": [
+      { marca: "HP", consumo: 200 },
+      { marca: "Dell", consumo: 210 },
+      { marca: "Lenovo", consumo: 190 },
+    ],
+    Router: [
+      { marca: "TP-Link", consumo: 12 },
+      { marca: "Asus", consumo: 15 },
+    ],
+  };
 
-  const modalContent = modal.querySelector(".modal-content");
+  function renderDevices(scenario) {
+    devicesContainer.innerHTML = "";
+    startBtn.style.display = "none";
+    if (!scenario || !devicesByScenario[scenario]) return;
 
-  function getSavedConfig() {
-    try {
-      const raw = localStorage.getItem("config_consumo");
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch (e) {
-      console.warn("config_consumo parse error:", e);
-      return null;
-    }
+    const devices = devicesByScenario[scenario];
+    const mid = Math.ceil(devices.length / 2);
+
+    const col1 = document.createElement("div");
+    col1.className = "form-column";
+    const col2 = document.createElement("div");
+    col2.className = "form-column";
+
+    devices.slice(0, mid).forEach((d) => col1.appendChild(createDeviceElement(d)));
+    devices.slice(mid).forEach((d) => col2.appendChild(createDeviceElement(d)));
+
+    devicesContainer.appendChild(col1);
+    devicesContainer.appendChild(col2);
+
+    const checkboxes = devicesContainer.querySelectorAll("input[type='checkbox']");
+    checkboxes.forEach((chk) => chk.addEventListener("change", handleDeviceChange));
   }
 
-  function buildModalContent() {
-    const saved = getSavedConfig() || defaultValues;
-
-    modalContent.innerHTML = `
-      <h2 id="modalTitle" class="modal-header">Configuración de Consumo</h2>
-      <div class="modal-columns-container"></div>
-      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:12px;">
-        <button type="button" class="save-btn" id="saveConfig">Guardar</button>
-        <button type="button" class="close-btn" id="closeConfig">Cerrar</button>
+  function createDeviceElement(device) {
+    const div = document.createElement("div");
+    div.className = "setting-row";
+    div.innerHTML = `
+      <div class="setting-header">
+        <div class="setting-label">
+          <i class="fas ${device.icon}"></i> ${device.label}
+        </div>
+        <div class="switch-box">
+          <label class="switch">
+            <input type="checkbox" id="${device.id}" />
+            <span class="slider"></span>
+          </label>
+        </div>
       </div>
     `;
+    return div;
+  }
 
-    const container = modalContent.querySelector(".modal-columns-container");
-    const col1 = document.createElement("div");
-    col1.classList.add("modal-column");
-    const col2 = document.createElement("div");
-    col2.classList.add("modal-column");
+  let currentActiveCheckbox = null;
 
-    // Campo KWH (siempre visible)
-    const kwhField = document.createElement("div");
-    kwhField.innerHTML = `
-      <label for="kwhInput">Valor KWH (COP)</label>
-      <input type="number" id="kwhInput" min="0" step="0.01"
-        placeholder="Valor monetario de KWH"
-        value="${saved.kwhPrice ?? defaultValues.kwhPrice}" />
+  function showDeviceToast(deviceLabel, checkbox) {
+    toastContainer.innerHTML = "";
+    toastContainer.style.position = "fixed";
+    toastContainer.style.top = "200px";
+    toastContainer.style.right = "20px";
+    toastContainer.style.left = "auto";
+
+    const toast = document.createElement("div");
+    toast.className = "toast-card";
+    toast.dataset.device = deviceLabel;
+    toast.style.position = "fixed";
+    toast.style.top = "200px";
+    toast.style.right = "20px";
+    toast.style.left = "auto";
+    toast.style.zIndex = "9999";
+
+    toast.innerHTML = `
+      <h4>${deviceLabel}</h4>
+      <div class="marca-block scrollable-block"></div>
+      <button class="add-marca-btn">+ Agregar otra marca</button>
+      <button class="guardar-btn">Guardar</button>
     `;
-    col1.appendChild(kwhField);
 
-    // Mostrar inputs SOLO para dispositivos activos
-    const activeDevices = devices.filter(dev => {
-      const chk = document.getElementById(dev.id);
-      return chk && chk.checked;
+    const marcaContainer = toast.querySelector(".marca-block");
+    const addBtn = toast.querySelector(".add-marca-btn");
+    const marcasDisponibles = (deviceData[deviceLabel] || []).length;
+
+    marcaContainer.appendChild(createMarcaBlock(deviceLabel, 1));
+
+    addBtn.addEventListener("click", () => {
+      const currentCount = marcaContainer.children.length;
+      if (currentCount < marcasDisponibles) {
+        const nextNumber = currentCount + 1;
+        marcaContainer.appendChild(createMarcaBlock(deviceLabel, nextNumber));
+        if (nextNumber >= marcasDisponibles) {
+          addBtn.disabled = true;
+          addBtn.textContent = "Máximo alcanzado";
+        }
+      }
     });
 
-    if (activeDevices.length === 0) {
-      const msg = document.createElement("p");
-      msg.textContent = "No hay dispositivos activos.";
-      container.appendChild(msg);
+    toast.querySelector(".guardar-btn").addEventListener("click", () => {
+      toast.innerHTML = `<div class="success-toast">✅ ${deviceLabel} guardado correctamente.</div>`;
+      setTimeout(() => toast.remove(), 1500);
+    });
+
+    toastContainer.appendChild(toast);
+    makeToastDraggable(toast);
+
+    // Cierre por clic fuera
+    setTimeout(() => {
+      document.addEventListener("click", (ev) => {
+        if (toast && !toast.contains(ev.target) && ev.target !== checkbox) {
+          toast.remove();
+          if (checkbox) checkbox.checked = false;
+        }
+      }, { once: true });
+    }, 100);
+
+    currentActiveCheckbox = checkbox;
+  }
+
+  function makeToastDraggable(toast) {
+    let offsetX = 0, offsetY = 0, isDragging = false;
+    toast.style.cursor = "grab";
+
+    toast.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      toast.style.cursor = "grabbing";
+      offsetX = e.clientX - toast.getBoundingClientRect().left;
+      offsetY = e.clientY - toast.getBoundingClientRect().top;
+      toast.style.transition = "none";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const newLeft = e.clientX - offsetX;
+      const newTop = e.clientY - offsetY;
+      toast.style.left = `${newLeft}px`;
+      toast.style.top = `${newTop}px`;
+      toast.style.right = "auto";
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      toast.style.cursor = "grab";
+      toast.style.transition = "top 0.2s, left 0.2s";
+    });
+  }
+
+  function createMarcaBlock(deviceLabel, number = 1) {
+    const block = document.createElement("div");
+    block.className = "marca-section";
+    const marcas = deviceData[deviceLabel] || [];
+
+    block.innerHTML = `
+      <label>Marca ${number}:</label>
+      <select class="marca-select">
+        ${marcas
+          .map(
+            (m) =>
+              `<option value="${m.marca}" data-consumo="${m.consumo}">${m.marca}</option>`
+          )
+          .join("")}
+      </select>
+
+      <label>Consumo (W):</label>
+      <input type="number" class="consumo-input" placeholder="Ej. 100" />
+
+      <label>Cantidad:</label>
+      <input type="number" class="cantidad-input" placeholder="Ej. 2" min="1" value="1"/>
+    `;
+
+    const select = block.querySelector(".marca-select");
+    const consumo = block.querySelector(".consumo-input");
+    if (marcas.length > 0) consumo.value = marcas[0].consumo;
+
+    select.addEventListener("change", (e) => {
+      consumo.value = e.target.selectedOptions[0].dataset.consumo;
+    });
+
+    return block;
+  }
+
+  function handleDeviceChange(e) {
+    const checkbox = e.target;
+    const label = checkbox.closest(".setting-header").querySelector(".setting-label").textContent.trim();
+
+    const anyActive = devicesContainer.querySelectorAll("input[type='checkbox']:checked").length > 0;
+    startBtn.style.display = anyActive ? "inline-block" : "none";
+
+    if (checkbox.checked) {
+      showDeviceToast(label, checkbox);
     } else {
-      activeDevices.forEach((dev, i) => {
-        const val = saved[dev.inputId] ?? defaultValues[dev.inputId];
-        const field = document.createElement("div");
-        field.innerHTML = `
-          <label for="${dev.inputId}">Consumo ${dev.label} (Watts):</label>
-          <input type="number" id="${dev.inputId}" min="0"
-            value="${val}" placeholder="Consumo ${dev.label}" />
-        `;
-        if (i % 2 === 0) col1.appendChild(field);
-        else col2.appendChild(field);
-      });
-    }
-
-    container.appendChild(col1);
-    container.appendChild(col2);
-
-    // Cerrar modal
-    modalContent.querySelector("#closeConfig").addEventListener("click", () => {
-      modal.style.display = "none";
-    });
-
-    // Guardar configuración (solo los visibles + precio KWH)
-    modalContent.querySelector("#saveConfig").addEventListener("click", () => {
-      const currentConfig = getSavedConfig() || { ...defaultValues };
-      const newConfig = { ...currentConfig };
-
-      const kwhInput = document.getElementById("kwhInput");
-      if (kwhInput) newConfig.kwhPrice = Number(kwhInput.value) || defaultValues.kwhPrice;
-
-      activeDevices.forEach(dev => {
-        const input = document.getElementById(dev.inputId);
-        if (input) newConfig[dev.inputId] = Number(input.value) || defaultValues[dev.inputId];
-      });
-
-      localStorage.setItem("config_consumo", JSON.stringify(newConfig));
-      // Crear y mostrar mensaje flotante
-      const notif = document.createElement("div");
-      notif.className = "save-notification";
-      notif.textContent = "Configuración guardada correctamente ✅";
-      document.body.appendChild(notif);
-
-      // Animar entrada y salida
-      setTimeout(() => {
-        notif.classList.add("show");
-      }, 10);
-
-      setTimeout(() => {
-        notif.classList.remove("show");
-        setTimeout(() => notif.remove(), 500);
-      }, 3000);
-
-      modal.style.display = "none";
-    });
-  }
-
-  // Abrir modal
-  openBtn.addEventListener("click", () => {
-    buildModalContent();
-    modal.style.display = "block";
-  });
-
-  // Cerrar por click fuera
-  window.addEventListener("click", (e) => {
-    if (e.target === modal) modal.style.display = "none";
-  });
-
-  // Mostrar/ocultar contadores según switches
-  function toggleCounter(switchId, counterId) {
-    const sw = document.getElementById(switchId);
-    const box = document.getElementById(counterId);
-    if (sw && box) box.style.display = sw.checked ? "flex" : "none";
-  }
-
-  ["chkProyectores", "chkTelevisores", "chkPortatiles", "chkComputadores", "chkPantallas", "chkRouter", "chkLuces"].forEach((id) => {
-    const counterId = "ctr" + id.replace("chk", "");
-    const checkbox = document.getElementById(id);
-    toggleCounter(id, counterId);
-    if (checkbox) checkbox.addEventListener("change", () => toggleCounter(id, counterId));
-  });
-
-  // Contador simple
-  window.updateCount = function (id, delta) {
-    const span = document.getElementById(id);
-    let value = parseInt(span.textContent);
-    if (isNaN(value)) value = 0;
-    span.textContent = Math.max(0, value + delta);
-  };
-});
-
-// ---------- Enviar datos y abrir simulación ----------
-document.addEventListener("DOMContentLoaded", () => {
-  const startBtn = document.getElementById("startSim");
-
-  const devicesList = [
-    { chkId: "chkProyectores", countId: "proyectores", label: "Proyectores", modalInputId: "consumoProyectores" },
-    { chkId: "chkTelevisores", countId: "televisores", label: "Televisores", modalInputId: "consumoTelevisores" },
-    { chkId: "chkPortatiles", countId: "portatiles", label: "Portátiles", modalInputId: "consumoPortatiles" },
-    { chkId: "chkComputadores", countId: "computadores", label: "Computadores de mesa", modalInputId: "consumoComputadores" },
-    { chkId: "chkPantallas", countId: "pantallas", label: "Pantallas OneScreen", modalInputId: "consumoPantallas" },
-    { chkId: "chkRouter", countId: "router", label: "Router", modalInputId: "consumoRouter" },
-    { chkId: "chkLuces", countId: "luces", label: "Luces", modalInputId: "consumoLuces" },
-  ];
-
-  function getEffectiveConfig() {
-    const raw = localStorage.getItem("config_consumo");
-    if (!raw) return { ...defaultValues };
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return { ...defaultValues };
+      toastContainer.innerHTML = "";
     }
   }
 
-  startBtn.addEventListener("click", () => {
-    const horasInput = document.querySelector(".input-box");
-    const horas = horasInput ? Number(horasInput.value) || 8 : 8;
-
-    const cfg = getEffectiveConfig();
-    const kwhPrice = cfg.kwhPrice || 0;
-
-    const devices = devicesList.map(dev => {
-      const chk = document.getElementById(dev.chkId);
-      const countSpan = document.getElementById(dev.countId);
-      const cnt = countSpan ? parseInt(countSpan.textContent) || 0 : 0;
-      const watts = cfg[dev.modalInputId] ?? 0;
-      return { id: dev.chkId, label: dev.label, active: !!(chk && chk.checked), count: cnt, watts };
-    });
-
-    const payload = {
-      horas,
-      kwhPrice,
-      devices,
-      generatedAt: new Date().toISOString()
-    };
-
-    localStorage.setItem("simulator_payload", JSON.stringify(payload));
-    window.open("simulacion.html", "_blank");
-  });
+  tipoEscenario.addEventListener("change", (e) => renderDevices(e.target.value));
 });

@@ -1,0 +1,35 @@
+{
+  "Televisores": [
+    { "marca": "Samsung", "consumo": 150 },
+    { "marca": "LG", "consumo": 130 },
+    { "marca": "Sony", "consumo": 160 }
+  ],
+  "Proyectores": [
+    { "marca": "Epson", "consumo": 250 },
+    { "marca": "BenQ", "consumo": 230 }
+  ],
+  "Portátiles": [
+    { "marca": "HP", "consumo": 60 },
+    { "marca": "Lenovo", "consumo": 55 },
+    { "marca": "Dell", "consumo": 70 }
+  ],
+  "Teléfonos": [
+    { "marca": "Samsung", "consumo": 15 },
+    { "marca": "Apple", "consumo": 18 }
+  ],
+  "Luces": [
+    { "marca": "Philips", "consumo": 20 },
+    { "marca": "GE", "consumo": 18 }
+  ],
+  "Pantallas OneScreen": [
+    { "marca": "OneScreen", "consumo": 200 }
+  ],
+  "Computadores de mesa": [
+    { "marca": "Dell", "consumo": 120 },
+    { "marca": "HP", "consumo": 110 }
+  ],
+  "Router": [
+    { "marca": "TP-Link", "consumo": 12 },
+    { "marca": "Huawei", "consumo": 10 }
+  ]
+}

@@ -6,12 +6,39 @@ body {
 }
 
 .sim-container {
-  max-width: 850px;
+  max-width: 800px;
   margin: 30px auto;
   background: #fff;
   border-radius: 15px;
   box-shadow: 0 8px 28px rgba(84, 106, 220, 0.07);
-  padding: 35px 35px 30px 35px;
+  padding: 35px;
+}
+
+.logo-gradient {
+  background: linear-gradient(40deg, #00c3ff, #00ff85);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.logo-gradient-alt {
+  background: linear-gradient(90deg, #00ff85, #ffd931);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.highlight-t {
+  background: linear-gradient(90deg, #ffcc00, #ffcc00);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
 }
 
 .sim-title {
@@ -22,25 +49,17 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
+  line-height: 1; /* mantiene el texto centrado respecto a la imagen */
+    margin-top: 20px; /* sube o baja el texto relativo al logo */
 }
 
-.config-btn {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translate(0, -50%);
-  background: none;
-  border: none;
-  font-size: 1.8rem;
-  color: #25386b;
-  cursor: pointer;
-  transition: color 0.3s ease;
+.sim-logo {
+  height: 90px; /* ajusta si quieres más o menos altura */
+  width: auto;
+  object-fit: contain;
 }
 
-.config-btn:hover {
-  color: #3d7bfd;
-}
+
 
 .form-block {
   background: #f7f8fa;
@@ -76,6 +95,60 @@ body {
   font-size: 0.97em;
   color: #7c849c;
   margin: 8px 0 0 2px;
+}
+
+/* Estilo general del select */
+.select-box {
+  width: 100%;
+  min-width: 180px;
+  padding: 8px 12px;
+  border: 1px solid #e5e6ef;
+  border-radius: 10px;
+  background-color: #fff;
+  font-size: 1em;
+  color: #2c3554;
+  appearance: none;
+  cursor: pointer;
+  background-image: 
+    linear-gradient(45deg, transparent 50%, #3d7bfd 50%),
+    linear-gradient(135deg, #3d7bfd 50%, transparent 50%),
+    linear-gradient(to right, #f7f8fa, #f7f8fa);
+  background-position: 
+    calc(100% - 18px) calc(50% - 4px),
+    calc(100% - 13px) calc(50% - 4px),
+    100% 0;
+  background-size: 6px 6px, 6px 6px, 3em 100%;
+  background-repeat: no-repeat;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(84, 106, 220, 0.1);
+}
+
+.select-box:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 2px 5px rgba(61, 123, 253, 0.15);
+}
+
+.select-box:focus {
+  border-color: #3d7bfd;
+  box-shadow: 0 0 7px rgba(61, 123, 253, 0.35);
+  outline: none;
+  background-color: #f9fbff;
+}
+
+/* Mejora de las opciones (donde se puede) */
+.select-box option {
+  background-color: #fff;
+  color: #2c3554;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+/* Solo funciona bien en navegadores modernos */
+.select-box option:hover,
+.select-box option:checked,
+.select-box option:focus {
+  background-color: #eaf1ff !important;
+  color: #25386b !important;
 }
 
 /* ---------------- Columnas del formulario principal ---------------- */
@@ -180,44 +253,143 @@ body {
   transform: translateX(18px);
 }
 
-.counter-box {
-  margin-top: 5px;
-  display: none;
-  gap: 6px;
-  font-size: 1em;
-  align-items: center;
-  justify-content: flex-start;
+
+
+
+/* toast container */
+.toast-container {
+  position: fixed;
+  top: 200px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.counter-btn {
-  background: #f3f7fe;
+/* .toast-card {
+  background: #ffffff;
+  border-left: 5px solid #f1c40f;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  padding: 16px;
+  width: 320px;
+  animation: slideIn 0.4s ease forwards;
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+} */
+
+.toast-card {
+  background: #ffffff;
+  border-left: 5px solid #f1c40f;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  padding: 20px 16px; /* un poco más de espacio vertical */
+  width: 320px; /* ancho igual */
+  animation: slideIn 0.4s ease forwards;
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+  min-height: 290px; /* más largo */
+}
+
+.toast-card h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #25386b;
+  font-weight: 600;
+}
+
+.toast-card label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.toast-card select,
+.toast-card input {
+  width: 80%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+/* ajustamos también el scroll interno para aprovechar la altura extra */
+.scrollable-block {
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  margin-bottom: 10px;
+}
+
+
+
+.scrollable-block::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-block::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+
+.toast-card button {
+  width: 100%;
+  padding: 8px;
+  background-color: #25386b;
+  color: #fff;
   border: none;
   border-radius: 6px;
-  color: #3664df;
-  font-weight: bold;
-  width: 28px;
-  height: 28px;
   cursor: pointer;
-  font-size: 1.2em;
-  transition: background 0.17s;
+  transition: background 0.3s;
 }
 
-.counter-btn:hover {
-  background: #e6f0fa;
+.toast-card button:hover {
+  background-color: #00ff85;
 }
 
-.counter-num {
-  width: 40px;
-  text-align: center;
-  font-size: 1.08em;
-  font-weight: 450;
-  user-select: none;
+
+
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-/* Mostrar counter-box solo si el switch está activado */
-.switch input:checked ~ .counter-box {
-  display: flex;
+.success-toast {
+  color: #000000;
+  border-left-color: #2ecc71;
 }
+
+/* marcas */
+
+.marca-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #f9f9f9;
+}
+
+.add-marca-btn {
+  width: 100%;
+  background: #09cba3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 0.3s ease;
+}
+
+.add-marca-btn:hover {
+  background: #07b190;
+}
+
+
 
 /* ---------------- Botón de simulación ---------------- */
 .btn-simular {
@@ -240,141 +412,6 @@ body {
 .btn-simular:active {
   filter: brightness(0.9);
 }
-
-/* ---------------- Modal configuración ---------------- */
-.modal {
-  display: none; 
-  position: fixed; 
-  z-index: 100; 
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto; 
-  background-color: rgba(0,0,0,0.4);
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 6% auto;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 800px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.modal-header {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: #25386b;
-  border-bottom: 1px solid #eaeaea;
-  padding-bottom: 10px;
-  flex-basis: auto;
-  text-align: center;
-}
-
-.modal-columns-container {
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-}
-
-.modal-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.modal form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex-basis: 100%;
-}
-
-.modal label {
-  font-weight: 600;
-  color: #44475a;
-}
-
-.modal input[type="number"] {
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1em;
-}
-
-
-
-.btn-guardar:hover {
-  background-color: #0056b3;
-}
-
-.save-btn {
-  background: #ffc42a;;
-  color: white;
-  padding: 9px;
-  border: none;
-  border-radius: 10px;
-  margin-top: 25px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1em;
-  align-self: flex-end;
-  width: 100px;
-  transition: background-color 0.25s ease;
-}
-
-.save-btn:hover {
-  background-color: #0056b3;
-}
-
-.close-btn {
-  background: #ffc42a;
-  color: white;
-  padding: 9px;
-  border: none;
-  border-radius: 10px;
-  margin-top: 25px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1em;
-  align-self: flex-end;
-  width: 100px;
-  transition: background-color 0.25s ease;
-}
-
-.close-btn:hover {
-  background: linear-gradient(90deg, #09cba3, #3d7bfd, #7abaff);
-}
-
-
-.save-notification {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: #28a745;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.4s ease;
-  z-index: 9999;
-}
-
-.save-notification.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 
 /* ---------------- Responsive ---------------- */
 @media (max-width: 700px) {
