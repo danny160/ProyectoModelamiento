@@ -1,8 +1,9 @@
 body {
-  background: #f3f6fc;
+  background: linear-gradient(40deg, #00c3ff, #00ff85);;
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
   padding: 0;
+  
 }
 
 .sim-container {
@@ -25,6 +26,7 @@ body {
 
 .logo-gradient-alt {
   background: linear-gradient(90deg, #00ff85, #ffd931);
+  background-color:#3700ff;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -41,22 +43,36 @@ body {
   font-weight: 700;
 }
 
-.sim-title {
-  font-size: 2rem;
-  color: #25386b;
-  font-weight: bold;
-  margin-bottom: 36px;
+.sim-title-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 1; /* mantiene el texto centrado respecto a la imagen */
-    margin-top: 20px; /* sube o baja el texto relativo al logo */
+  flex-direction: column; /* coloca el subtítulo debajo del título */
+  align-items: center;    /* centra horizontalmente todo el contenido */
+  margin-top: 20px;
+  margin-bottom: 36px;
+}
+
+.sim-title {
+  font-size: 50px;
+  display: flex;
+  align-items: center;    /* centra verticalmente logo y texto */
 }
 
 .sim-logo {
-  height: 90px; /* ajusta si quieres más o menos altura */
+  height: 90px;
   width: auto;
   object-fit: contain;
+}
+
+.sim-text {
+  display: flex;
+  line-height: 1;
+}
+
+.subtitle {
+  margin-top: 8px;        /* espacio entre título y subtítulo */
+  font-size: 1rem;
+  color: #25386b;
+  text-align: center;     /* centra el texto respecto al wrapper */
 }
 
 
@@ -66,6 +82,8 @@ body {
   border-radius: 16px;
   padding: 28px 22px 18px 22px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 1px #ffcc00 ;
+
 }
 
 .label-title {
@@ -266,18 +284,6 @@ body {
   gap: 10px;
 }
 
-/* .toast-card {
-  background: #ffffff;
-  border-left: 5px solid #f1c40f;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  padding: 16px;
-  width: 320px;
-  animation: slideIn 0.4s ease forwards;
-  font-family: "Poppins", sans-serif;
-  overflow: hidden;
-} */
-
 .toast-card {
   background: #ffffff;
   border-left: 5px solid #f1c40f;
@@ -388,6 +394,93 @@ body {
 .add-marca-btn:hover {
   background: #07b190;
 }
+
+.marca-section {
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.back-marca-btn {
+  width: 100%;
+  background: #f1c40f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.3s ease;
+}
+
+.back-marca-btn:hover {
+  background: #d4ac0d;
+}
+
+.marca-nav-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.nav-btn {
+  flex: 1;
+  background: #25386b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.1s ease;
+  font-size: 1rem;
+}
+
+.nav-btn:hover {
+  background: #00ff85;
+  transform: scale(1.05);
+}
+
+.nav-btn i {
+  pointer-events: none;
+}
+
+
+.marca-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.marca-nav button {
+  background-color: #25386b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.marca-nav button:hover {
+  background-color: #00ff85;
+  color: #000;
+}
+
+.marca-nav i {
+  font-size: 1rem;
+}
+
 
 
 
