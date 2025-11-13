@@ -1,35 +1,38 @@
 {
   "Televisores": [
-    { "marca": "Samsung", "consumo": 150 },
-    { "marca": "LG", "consumo": 130 },
-    { "marca": "Sony", "consumo": 160 }
+    { "marca": "Samsung", "consumo": 150, "icono": "https://static.vecteezy.com/system/resources/previews/020/336/037/non_2x/samsung-logo-samsung-icon-free-free-vector.jpg " },
+    { "marca": "LG", "consumo": 130, "icono": "https://upload.wikimedia.org/wikipedia/commons/2/2e/LG_logo.png" },
+    { "marca": "Sony", "consumo": 160, "icono": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Sony_Logo.png" }
   ],
   "Proyectores": [
-    { "marca": "Epson", "consumo": 250 },
-    { "marca": "BenQ", "consumo": 230 }
+    { "marca": "Epson", "consumo": 250, "icono": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Epson_logo.png" },
+    { "marca": "BenQ", "consumo": 230, "icono": "https://upload.wikimedia.org/wikipedia/commons/4/4c/BenQ_logo.png" }
   ],
   "Portátiles": [
-    { "marca": "HP", "consumo": 60 },
-    { "marca": "Lenovo", "consumo": 55 },
-    { "marca": "Dell", "consumo": 70 }
+    { "marca": "HP", "consumo": 60, "icono": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Philips_logo_new.svg/1200px-Philips_logo_new.svg.png"  },
+    { "marca": "Lenovo", "consumo": 55, "icono": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Lenovo_Global_Corporate_Logo.png/2560px-Lenovo_Global_Corporate_Logo.png" },
+    { "marca": "Dell", "consumo": 70,  "icono": "https://upload.wikimedia.org/wikipedia/commons/8/82/Dell_Logo.png"}
   ],
+
+ 
+
   "Teléfonos": [
-    { "marca": "Samsung", "consumo": 15 },
-    { "marca": "Apple", "consumo": 18 }
+    { "marca": "Samsung", "consumo": 15, "icono": "https://static.vecteezy.com/system/resources/previews/020/336/037/non_2x/samsung-logo-samsung-icon-free-free-vector.jpg" },
+    { "marca": "Apple", "consumo": 18, "icono": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6aPgndZ78haA2P8eDX1CcC0wafNGvrZaa7A&s" }
   ],
   "Luces": [
-    { "marca": "Philips", "consumo": 20 },
-    { "marca": "GE", "consumo": 18 }
+    { "marca": "Philips", "consumo": 20, "icono": "https://upload.wikimedia.org/wikipedia/commons/3/36/Philips_logo.png" },
+    { "marca": "GE", "consumo": 18, "icono": "https://upload.wikimedia.org/wikipedia/commons/0/09/General_Electric_logo.svg" }
   ],
   "Pantallas OneScreen": [
-    { "marca": "OneScreen", "consumo": 200 }
+    { "marca": "OneScreen", "consumo": 200, "icono": "https://upload.wikimedia.org/wikipedia/commons/4/45/OneScreen_Logo.png" }
   ],
   "Computadores de mesa": [
-    { "marca": "Dell", "consumo": 120 },
-    { "marca": "HP", "consumo": 110 }
+    { "marca": "Dell", "consumo": 120, "icono": "https://upload.wikimedia.org/wikipedia/commons/4/48/Dell_Logo.svg" },
+    { "marca": "HP", "consumo": 110, "icono": "https://upload.wikimedia.org/wikipedia/commons/3/33/HP_logo_2012.svg" }
   ],
   "Router": [
-    { "marca": "TP-Link", "consumo": 12 },
-    { "marca": "Huawei", "consumo": 10 }
+    { "marca": "TP-Link", "consumo": 12, "icono": "https://upload.wikimedia.org/wikipedia/commons/0/03/TP-Link_logo.svg" },
+    { "marca": "Huawei", "consumo": 10, "icono": "https://upload.wikimedia.org/wikipedia/commons/5/53/Huawei_logo.svg" }
   ]
 }

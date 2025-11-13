@@ -167,7 +167,7 @@
       kwhAcc = devices.reduce((sum, d) => sum + (d.watts * d.count / 1000), 0) * hour;
       const whAcc = kwhAcc * 1000;
       const co2 = kwhAcc * CO2_FACTOR;
-      const costDay = kwhAcc * kwhPrice;
+      const costDay = kwhAcc * kwhPrice;*
       const costWeek = costDay * 7;
       const costMonth = costDay * 30;
 

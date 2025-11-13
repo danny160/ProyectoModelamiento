@@ -1,9 +1,10 @@
 body {
-  background: linear-gradient(40deg, #00c3ff, #00ff85);;
+  background: linear-gradient(40deg, #00c3ff, #00ff85);
+  ;
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
   padding: 0;
-  
+
 }
 
 .sim-container {
@@ -26,7 +27,7 @@ body {
 
 .logo-gradient-alt {
   background: linear-gradient(90deg, #00ff85, #ffd931);
-  background-color:#3700ff;
+  background-color: #3700ff;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -45,8 +46,10 @@ body {
 
 .sim-title-wrapper {
   display: flex;
-  flex-direction: column; /* coloca el subtítulo debajo del título */
-  align-items: center;    /* centra horizontalmente todo el contenido */
+  flex-direction: column;
+  /* coloca el subtítulo debajo del título */
+  align-items: center;
+  /* centra horizontalmente todo el contenido */
   margin-top: 20px;
   margin-bottom: 36px;
 }
@@ -54,7 +57,8 @@ body {
 .sim-title {
   font-size: 50px;
   display: flex;
-  align-items: center;    /* centra verticalmente logo y texto */
+  align-items: center;
+  /* centra verticalmente logo y texto */
 }
 
 .sim-logo {
@@ -69,20 +73,20 @@ body {
 }
 
 .subtitle {
-  margin-top: 8px;        /* espacio entre título y subtítulo */
+  margin-top: 8px;
+  /* espacio entre título y subtítulo */
   font-size: 1rem;
   color: #25386b;
-  text-align: center;     /* centra el texto respecto al wrapper */
+  text-align: center;
+  /* centra el texto respecto al wrapper */
 }
-
-
 
 .form-block {
   background: #f7f8fa;
   border-radius: 16px;
   padding: 28px 22px 18px 22px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 1px #ffcc00 ;
+  box-shadow: 0 1px 1px #ffcc00;
 
 }
 
@@ -127,11 +131,11 @@ body {
   color: #2c3554;
   appearance: none;
   cursor: pointer;
-  background-image: 
+  background-image:
     linear-gradient(45deg, transparent 50%, #3d7bfd 50%),
     linear-gradient(135deg, #3d7bfd 50%, transparent 50%),
     linear-gradient(to right, #f7f8fa, #f7f8fa);
-  background-position: 
+  background-position:
     calc(100% - 18px) calc(50% - 4px),
     calc(100% - 13px) calc(50% - 4px),
     100% 0;
@@ -260,19 +264,16 @@ body {
   background-color: white;
   transition: .4s;
   border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(60,60,60,0.10);
+  box-shadow: 0 1px 2px rgba(60, 60, 60, 0.10);
 }
 
-.switch input:checked + .slider {
+.switch input:checked+.slider {
   background-color: #ffc42a;
 }
 
-.switch input:checked + .slider:before {
+.switch input:checked+.slider:before {
   transform: translateX(18px);
 }
-
-
-
 
 /* toast container */
 .toast-container {
@@ -288,13 +289,16 @@ body {
   background: #ffffff;
   border-left: 5px solid #f1c40f;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  padding: 20px 16px; /* un poco más de espacio vertical */
-  width: 320px; /* ancho igual */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px 16px;
+  /* un poco más de espacio vertical */
+  width: 320px;
+  /* ancho igual */
   animation: slideIn 0.4s ease forwards;
   font-family: "Poppins", sans-serif;
   overflow: hidden;
-  min-height: 290px; /* más largo */
+  min-height: 290px;
+  /* más largo */
 }
 
 .toast-card h4 {
@@ -360,8 +364,15 @@ body {
 
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(100%); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .success-toast {
@@ -404,6 +415,7 @@ body {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -482,10 +494,9 @@ body {
 }
 
 
-
-
 /* ---------------- Botón de simulación ---------------- */
 .btn-simular {
+  
   width: 100%;
   padding: 14px 0;
   font-size: 1.1em;
@@ -499,9 +510,11 @@ body {
   transition: filter 0.3s ease;
   margin-top: 25px;
 }
+
 .btn-simular:hover {
   filter: brightness(1.1);
 }
+
 .btn-simular:active {
   filter: brightness(0.9);
 }
