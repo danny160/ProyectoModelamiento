@@ -1,3 +1,6 @@
+// ============================================================
+//  MÓDULO 0 — INICIALIZACIÓN DEL DOM Y VARIABLES GLOBALES
+// ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   const tipoEscenario = document.getElementById("tipoEscenario");
   const startBtn = document.getElementById("startSim");
@@ -6,10 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   startBtn.style.display = "none";
 
-  // Variables globales
+  // Variables globales relacionadas con tomas eléctricas
   let totalTomasDisponibles = 0;
   let tomasUsadas = 0;
 
+  // Panel lateral numérico para mostrar disponibilidad de tomas
   function actualizarPanelTomas() {
     const disponibles = document.getElementById("tomasDisponibles");
     const usadas = document.getElementById("tomasUsadas");
@@ -20,8 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
     restantes.textContent = Math.max(totalTomasDisponibles - tomasUsadas, 0);
   }
 
-
-  // Crear panel lateral fijo para mostrar tomas
+  // ============================================================
+  //  MÓDULO 1 — PANEL LATERAL DE INFORMACIÓN (Tomas)
+  // ============================================================
   const infoPanel = document.createElement("div");
   infoPanel.id = "infoPanel";
   infoPanel.style.position = "fixed";
@@ -38,18 +43,20 @@ document.addEventListener("DOMContentLoaded", () => {
   infoPanel.style.color = "#25386b";
   infoPanel.style.display = "none";
   infoPanel.style.lineHeight = "1";
+
   infoPanel.innerHTML = `
-  <h4 style="margin-top:0; text-align:center; justify-content: center;">🔋 Tomas</h4>
-  <p><strong>Disponibles:</strong> <span id="tomasDisponibles">0</span></p>
-  <p><strong>Usadas:</strong> <span id="tomasUsadas">0</span></p>
-  <p><strong>Restantes:</strong> <span id="tomasRestantes">0</span></p>
-`;
+    <h4 style="margin-top:0; text-align:center; justify-content: center;">🔋 Tomas</h4>
+    <p><strong>Disponibles:</strong> <span id="tomasDisponibles">0</span></p>
+    <p><strong>Usadas:</strong> <span id="tomasUsadas">0</span></p>
+    <p><strong>Restantes:</strong> <span id="tomasRestantes">0</span></p>
+  `;
 
   document.body.appendChild(infoPanel);
 
 
-
-  // Escenarios con sus dispositivos
+  // ============================================================
+  //  MÓDULO 2 — CATÁLOGO DE DISPOSITIVOS POR ESCENARIO
+  // ============================================================
   const devicesByScenario = {
     salon: [
       { id: "chkTelevisores", label: "Televisores", icon: "fa-tv" },
@@ -69,7 +76,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
-  // ---- Cargar dispositivos desde JSON ----
+
+  // ============================================================
+  //  MÓDULO 3 — CARGA DE DATOS JSON (Marcas y consumos)
+  // ============================================================
   let deviceData = {};
   fetch("dispositivos.json")
     .then((res) => res.json())
@@ -78,15 +88,18 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch((err) => console.error("Error cargando dispositivos.json:", err));
 
-  // ---- Renderizar dispositivos según escenario ----
+
+  // ============================================================
+  //  MÓDULO 4 — RENDERIZAR DISPOSITIVOS DEL ESCENARIO
+  // ============================================================
   function renderDevices(scenario) {
     devicesContainer.innerHTML = "";
     startBtn.style.display = "none";
+
     if (!scenario || !devicesByScenario[scenario]) return;
-
     const devices = devicesByScenario[scenario];
-    const mid = Math.ceil(devices.length / 2);
 
+    const mid = Math.ceil(devices.length / 2);
     const col1 = document.createElement("div");
     col1.className = "form-column";
     const col2 = document.createElement("div");
@@ -102,6 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
     checkboxes.forEach((chk) => chk.addEventListener("change", handleDeviceChange));
   }
 
+  // Crear el componente visual del interruptor/dispositivo
   function createDeviceElement(device) {
     const div = document.createElement("div");
     div.className = "setting-row";
@@ -121,9 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return div;
   }
 
-  let currentActiveCheckbox = null;
 
-  // ---- Modal genérico ----
+  // ============================================================
+  //  MÓDULO 5 — MODAL GENÉRICO (Alertas bonitas)
+  // ============================================================
   function showModal(message, title = "Advertencia") {
     const overlay = document.createElement("div");
     overlay.style.position = "fixed";
@@ -162,47 +177,65 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---- Mostrar toast ----
+
+  // ============================================================
+  //  MÓDULO 6 — TOAST DE CONFIGURACIÓN DE DISPOSITIVOS
+  // ============================================================
   function showDeviceToast(deviceLabel, checkbox) {
+    // Limpia toasts previos
     toastContainer.innerHTML = "";
 
+    // Crear tarjeta toast flotante
     const toast = document.createElement("div");
     toast.className = "toast-card";
     toast.style.position = "fixed";
     toast.style.left = "73%";
     toast.style.transform = "translate(-50%, -50%)";
     toast.style.zIndex = "1500";
-    toast.style.paddingTop = "25px"; // deja espacio superior para el botón
+    toast.style.paddingTop = "25px";
 
+    // Contenido del toast
     toast.innerHTML = `
-    <button class="cerrar-toast"
-      style="position:absolute; top:0; right:0; background:none; border:none;
-             font-size:22px; color:#e63946; font-weight:bold; cursor:pointer;
-             padding:6px 10px; line-height:1; border-top-right-radius:10px;
-             transition: transform 0.2s ease, color 0.2s ease;">✖</button>
-    <h4 style="margin-top:0;">${deviceLabel}</h4>
-    <div class="marca-block scrollable-block"></div>
-    <div class="botonera-unificada" style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:10px;">
-      <button class="prev-marca" style="display:none;width:40px;height:40px;border:none;border-radius:8px;background-color:#25386b;color:#fff;">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      <button class="add-marca-btn"
-          style="height:40px; padding:0 15px; border:none; border-radius:8px;
-                 background:linear-gradient(90deg, #09cba3, #3d7bfd); color:white; font-weight:500;">
-        + Agregar otra marca
-      </button>
-      <button class="next-marca" style="display:none;width:40px;height:40px;border:none;border-radius:8px;background-color:#25386b;color:#fff;">
-        <i class="fas fa-arrow-right"></i>
-      </button>
-    </div>
-    <div class="botonera-guardar" style="margin-top:10px; text-align:center;">
-      <button class="guardar-btn"
-          style="background:linear-gradient(90deg, #09cba3, #3d7bfd); color:white; border:none; border-radius:8px;
-                 padding:8px 20px; cursor:pointer; font-weight:500;">Guardar</button>
-    </div>
-  `;
+      <button class="cerrar-toast"
+        style="position:absolute; top:0; right:0; 
+        background:none; border:none; font-size:22px; 
+        color:#e63946; font-weight:bold; cursor:pointer; padding:6px 10px;
+        line-height:1; border-top-right-radius:10px;
+        transition: transform 0.2s ease, color 0.2s ease;">✖</button>
 
-    // --- botón cerrar ---
+      <h4 style="margin-top:0;">${deviceLabel}</h4>
+      <div class="marca-block scrollable-block"></div>
+
+      <div class="botonera-unificada" style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:10px;">
+        <button class="prev-marca" style="display:none;width:40px;height:40px;border:none;border-radius:8px;background-color:#25386b;color:#fff;">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+
+        <button class="add-marca-btn"
+          style="height:40px; padding:0 15px; border:none; border-radius:8px;
+                background:linear-gradient(90deg, #09cba3, #3d7bfd); 
+                color:white; font-weight:500;">
+          + Agregar otra marca
+        </button>
+
+        <button class="next-marca" style="display:none;width:40px;height:40px;border:none;border-radius:8px;background-color:#25386b;color:#fff;">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <div class="botonera-guardar" style="margin-top:10px; text-align:center;">
+        <button class="guardar-btn"
+          style="background:linear-gradient(90deg, #09cba3, #3d7bfd); 
+          color:white; border:none; border-radius:8px;
+          padding:8px 20px; cursor:pointer; font-weight:500;">
+          Guardar
+        </button>
+      </div>
+    `;
+
+    // =============================
+    // Manejo de navegación de marcas
+    // =============================
     const cerrarBtn = toast.querySelector(".cerrar-toast");
     cerrarBtn.addEventListener("mouseenter", () => {
       cerrarBtn.style.color = "#ff0000";
@@ -217,12 +250,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (checkbox) checkbox.checked = false;
     });
 
-    // --- resto de tu código igual ---
     const marcaContainer = toast.querySelector(".marca-block");
     const addBtn = toast.querySelector(".add-marca-btn");
     const nextBtn = toast.querySelector(".next-marca");
     const prevBtn = toast.querySelector(".prev-marca");
     const guardarBtn = toast.querySelector(".guardar-btn");
+
     const marcasDisponibles = (deviceData[deviceLabel] || []).length;
 
     let currentIndex = 1;
@@ -233,6 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const createdCount = marcaContainer.children.length;
       prevBtn.style.display = currentIndex > 1 ? "inline-block" : "none";
       nextBtn.style.display = createdCount > currentIndex ? "inline-block" : "none";
+
       if (createdCount >= marcasDisponibles) {
         addBtn.disabled = true;
         addBtn.textContent = "Máximo alcanzado";
@@ -271,6 +305,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (currentIndex > 1) showMarca(currentIndex - 1);
     });
 
+    // ========================================================
+    // Gestión del botón GUARDAR dentro del toast
+    // ========================================================
     guardarBtn.addEventListener("click", () => {
       let totalCantidad = 0;
       const marcasGuardadas = [];
@@ -291,19 +328,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      if (tomasUsadas + totalCantidad > totalTomasDisponibles) {
-        showModal(
-          `Se superó el límite de tomas disponibles (${totalTomasDisponibles}).`,
-          "Límite de Tomas Alcanzado"
-        );
-        return;
+      // Luces no consumen tomas
+      if (deviceLabel !== "Luces") {
+        if (tomasUsadas + totalCantidad > totalTomasDisponibles) {
+          showModal(
+            `Se superó el límite de tomas disponibles (${totalTomasDisponibles}).`,
+            "Límite de Tomas Alcanzado"
+          );
+          return;
+        }
+
+        tomasUsadas += totalCantidad;
+        actualizarPanelTomas();
       }
 
-      tomasUsadas += totalCantidad;
-      actualizarPanelTomas();
-
-
+      // Guarda configuración en memoria global
       if (!window.dispositivosConfigurados) window.dispositivosConfigurados = [];
+
       const existente = window.dispositivosConfigurados.find((d) => d.tipo === deviceLabel);
       if (existente) {
         existente.marcas = marcasGuardadas;
@@ -316,24 +357,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (checkbox) checkbox.checked = true;
 
+      // Reemplazar contenido del toast por mensaje de éxito
       toast.innerHTML = `
-      <div class="success-toast"
-        style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
-        padding: 15px 25px; border-radius: 12px; text-align: center; font-weight: 500;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15); animation: fadeInOut 1.8s ease-in-out forwards;">
-        ✅ ${deviceLabel} guardado correctamente
-      </div>
-    `;
+        <div class="success-toast"
+          style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+          padding: 15px 25px; border-radius: 12px; text-align: center; font-weight: 500;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          animation: fadeInOut 1.8s ease-in-out forwards;">
+          ✅ ${deviceLabel} guardado correctamente
+        </div>
+      `;
 
       const style = document.createElement("style");
       style.textContent = `
-      @keyframes fadeInOut {
-        0% { opacity: 0; transform: scale(0.9); }
-        10% { opacity: 1; transform: scale(1); }
-        80% { opacity: 1; transform: scale(1); }
-        100% { opacity: 0; transform: scale(0.9); }
-      }
-    `;
+        @keyframes fadeInOut {
+          0%   { opacity: 0; transform: scale(0.9); }
+          10%  { opacity: 1; transform: scale(1); }
+          80%  { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(0.9); }
+        }
+      `;
       document.head.appendChild(style);
 
       setTimeout(() => {
@@ -345,7 +388,10 @@ document.addEventListener("DOMContentLoaded", () => {
     makeToastDraggable(toast);
   }
 
-  // ---- Hacer toast draggable ----
+
+  // ============================================================
+  //  MÓDULO 7 — PERMITIR ARRASTRAR (DRAGGABLE) CUALQUIER TOAST
+  // ============================================================
   function makeToastDraggable(toast) {
     let offsetX = 0,
       offsetY = 0,
@@ -377,7 +423,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---- Crear bloque de marcas ----
+
+  // ============================================================
+  //  MÓDULO 8 — CREAR BLOQUES DE MARCAS/CONSUMOS
+  // ============================================================
   function createMarcaBlock(deviceLabel, number = 1) {
     const block = document.createElement("div");
     block.className = "marca-section";
@@ -387,20 +436,25 @@ document.addEventListener("DOMContentLoaded", () => {
       <label>Marca ${number}:</label>
       <select class="marca-select">
         ${marcas
-        .map(
-          (m) =>
-            `<option value="${m.marca}" data-consumo="${m.consumo}">${m.marca}</option>`
-        )
-        .join("")}
+          .map(
+            (m) =>
+              `<option value="${m.marca}" data-consumo="${m.consumo}">
+                 ${m.marca}
+               </option>`
+          )
+          .join("")}
       </select>
+
       <label>Consumo (W):</label>
       <input type="number" class="consumo-input" placeholder="Ej. 100" />
+
       <label>Cantidad:</label>
-      <input type="number" class="cantidad-input" placeholder="Ej. 2" min="1" value="1"/>
+      <input type="number" class="cantidad-input" placeholder="Ej. 2" min="1" value="1" />
     `;
 
     const select = block.querySelector(".marca-select");
     const consumo = block.querySelector(".consumo-input");
+
     if (marcas.length > 0)
       consumo.value = marcas[number - 1]?.consumo || marcas[0].consumo;
 
@@ -411,56 +465,53 @@ document.addEventListener("DOMContentLoaded", () => {
     return block;
   }
 
-  // ---- Manejar cambios en checkboxes ----
-  // ---- Manejar cambios en checkboxes ----
-function handleDeviceChange(e) {
+
+  // ============================================================
+  //  MÓDULO 9 — MANEJO DE INTERRUPTORES/DEVICES (Activar/Desactivar)
+  // ============================================================
+  function handleDeviceChange(e) {
     const checkbox = e.target;
     const label = checkbox.closest(".setting-header").querySelector(".setting-label").textContent.trim();
 
     const anyActive = devicesContainer.querySelectorAll("input[type='checkbox']:checked").length > 0;
     startBtn.style.display = anyActive ? "inline-block" : "none";
 
-    // --------------- ACTIVAR DISPOSITIVO ---------------
+    // ACTIVAR dispositivo → abrir toast
     if (checkbox.checked) {
-        showDeviceToast(label, checkbox);
-        return;
+      showDeviceToast(label, checkbox);
+      return;
     }
 
-    // --------------- DESACTIVAR DISPOSITIVO (nuevo bloque) ---------------
-    // Quitar cualquier toast visible
+    // DESACTIVAR dispositivo → quitar config, liberar tomas
     toastContainer.innerHTML = "";
 
     if (!window.dispositivosConfigurados) window.dispositivosConfigurados = [];
 
-    // Buscar si este dispositivo tenía configuración guardada
     const index = window.dispositivosConfigurados.findIndex(d => d.tipo === label);
 
     if (index !== -1) {
-        // Restar tomas usadas por ese dispositivo
-        const deviceConfig = window.dispositivosConfigurados[index];
-        let tomasLiberadas = 0;
+      const deviceConfig = window.dispositivosConfigurados[index];
+      let tomasLiberadas = 0;
 
+      if (label !== "Luces") {
         deviceConfig.marcas.forEach(m => {
-            tomasLiberadas += m.cantidad;
+          tomasLiberadas += m.cantidad;
         });
 
         tomasUsadas = Math.max(tomasUsadas - tomasLiberadas, 0);
-
-        // Eliminar del array de configurados
-        window.dispositivosConfigurados.splice(index, 1);
-
-        // Actualizar panel
         actualizarPanelTomas();
+      }
+
+      window.dispositivosConfigurados.splice(index, 1);
     }
 
-    // Ocultar botón de simulación si no queda nada activo
     updateSimButtonVisibility();
-}
+  }
 
 
-
-
-  // ---- Solicitar cantidad de tomas y UPS (unificado para laboratorio) ----
+  // ============================================================
+  //  MÓDULO 10 — CONFIGURACIÓN DEL ESCENARIO (Modal Tomas + UPS)
+  // ============================================================
   function solicitarConfiguracionEscenario(scenario, callback) {
     toastContainer.innerHTML = "";
 
@@ -469,12 +520,13 @@ function handleDeviceChange(e) {
     modal.style.width = "320px";
     modal.style.textAlign = "center";
 
-    // Contenido dinámico según escenario
     let contenido = `
       <h4>Configurar ${scenario === "lab" ? "Laboratorio de Informática" : "Escenario"}</h4>
+
       <p style="font-size:0.95em; color:#555; margin-bottom:10px;">
         Ingrese la cantidad de tomas eléctricas disponibles${scenario === "lab" ? " y cantidad de UPS:" : ":"}
       </p>
+
       <input type="number" id="inputTomas" min="1"
             placeholder="Tomas individuales funcionales"
             style="width:80%; padding:6px 8px; border:1px solid #ccc; border-radius:8px; margin-bottom:12px;"/>
@@ -491,8 +543,10 @@ function handleDeviceChange(e) {
     contenido += `
       <div style="display:flex; justify-content:center; gap:10px;">
         <button id="guardarConfigBtn"
-            style="background:linear-gradient(90deg, #09cba3, #3d7bfd); color:#fff; border:none;
-            border-radius:8px; padding:8px 16px; cursor:pointer; font-weight:500;">Guardar</button>
+            style="background:linear-gradient(90deg, #09cba3, #3d7bfd); 
+            color:#fff; border:none; border-radius:8px;
+            padding:8px 16px; cursor:pointer; font-weight:500;">Guardar</button>
+
         <button id="cancelarConfigBtn"
             style="background-color:#ccc; color:#000; border:none; border-radius:8px;
             padding:8px 16px; cursor:pointer;">Cancelar</button>
@@ -518,21 +572,21 @@ function handleDeviceChange(e) {
         return;
       }
 
-      // Cerrar modal
       modal.remove();
-      // Mostrar panel de tomas al guardar configuración
+
       infoPanel.style.display = "block";
       actualizarPanelTomas();
 
-
-      // Devolver los valores
       callback(cantidadTomas, cantidadUPS);
     });
 
     cancelar.addEventListener("click", () => modal.remove());
   }
 
-  // ---- Al cambiar el escenario ----
+
+  // ============================================================
+  //  MÓDULO 11 — ESCUCHAR CAMBIO DE ESCENARIO
+  // ============================================================
   tipoEscenario.addEventListener("change", (e) => {
     const scenario = e.target.value;
     if (!scenario) return;
@@ -540,22 +594,22 @@ function handleDeviceChange(e) {
     tomasUsadas = 0;
     actualizarPanelTomas();
 
-
     solicitarConfiguracionEscenario(scenario, (cantidadTomas, cantidadUPS) => {
       if (scenario === "lab") {
         totalTomasDisponibles = cantidadTomas + cantidadUPS * 6;
-        console.log(`Tomas totales (incluyendo UPS): ${totalTomasDisponibles}`);
       } else {
         totalTomasDisponibles = cantidadTomas;
-        console.log(`Tomas disponibles: ${totalTomasDisponibles}`);
       }
+
       renderDevices(scenario);
       actualizarPanelTomas();
     });
   });
 
 
-  // --- Mostrar el botón de simulación solo si hay dispositivos activos ---
+  // ============================================================
+  //  MÓDULO 12 — BOTÓN "SIMULAR" (Visibilidad dinámica)
+  // ============================================================
   function updateSimButtonVisibility() {
     const activeSwitches = document.querySelectorAll('.switch input:checked');
     const simBtn = document.querySelector('.btn-simular');
@@ -563,11 +617,9 @@ function handleDeviceChange(e) {
     if (!simBtn) return;
 
     if (activeSwitches.length > 0) {
-      // Si hay al menos un dispositivo activo → mostrar
       simBtn.style.display = 'block';
       simBtn.style.opacity = '1';
     } else {
-      // Si NO hay ninguno activo → ocultar
       simBtn.style.opacity = '0';
       setTimeout(() => {
         simBtn.style.display = 'none';
@@ -575,28 +627,23 @@ function handleDeviceChange(e) {
     }
   }
 
-  // Escuchar cambios en todos los switches
   document.addEventListener('change', (e) => {
     if (e.target.matches('.switch input')) {
       updateSimButtonVisibility();
     }
   });
 
-  // Ocultar al cargar la página
   document.addEventListener('DOMContentLoaded', () => {
     updateSimButtonVisibility();
   });
 
 
-  // ================================
-  //  ENVÍO DIRECTO DE DATOS A SIMULACION
-  // ================================
-
+  // ============================================================
+  //  MÓDULO 13 — ENVÍO FINAL DE DATOS A SIMULACION.HTML
+  // ============================================================
   document.getElementById("startSim").addEventListener("click", () => {
-    // Crear objeto principal
     const datosSimulacion = {};
 
-    // 1️⃣ Datos generales
     const escenario = document.getElementById("tipoEscenario")?.value || "";
     const horas = parseFloat(document.getElementById("horasSimulacion")?.value || "1");
     const valorKwh = parseFloat(document.getElementById("valorKwh")?.value || "0");
@@ -605,7 +652,6 @@ function handleDeviceChange(e) {
     datosSimulacion.horas = horas;
     datosSimulacion.kwhPrice = valorKwh;
 
-    // 2️⃣ Datos de conectores y UPS (según escenario)
     const conectores = parseInt(document.getElementById("cantidadConectores")?.value || "0");
     if (conectores > 0) datosSimulacion.conectores = conectores;
 
@@ -614,29 +660,16 @@ function handleDeviceChange(e) {
       if (ups > 0) datosSimulacion.ups = ups;
     }
 
-    // 3️⃣ Dispositivos activos (solo los configurados y guardados)
     const dispositivosActivos = window.dispositivosConfigurados || [];
     if (dispositivosActivos.length === 0) {
       alert("⚠️ No hay dispositivos activos configurados.");
       return;
     }
-    datosSimulacion.devices = dispositivosActivos;
-
-
-    if (dispositivosActivos.length === 0) {
-      alert("⚠️ No hay dispositivos activos configurados.");
-      return;
-    }
 
     datosSimulacion.devices = dispositivosActivos;
 
-    // 4️⃣ Guardar en LocalStorage
     localStorage.setItem("simulator_payload", JSON.stringify(datosSimulacion));
-
-    console.log("✅ Datos enviados a simulador:", datosSimulacion);
-
-    // 5️⃣ Abrir simulación
     window.open("simulacion.html", "_blank");
   });
 
-});
+}); // CIERRE DEL DOMContentLoaded COMPLETO
