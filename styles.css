@@ -519,6 +519,11 @@ body {
   filter: brightness(0.9);
 }
 
+.btn-simular {
+  transition: opacity 0.25s ease;
+}
+
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 700px) {
   .form-columns-container {

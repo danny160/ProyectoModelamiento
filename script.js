@@ -412,19 +412,51 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---- Manejar cambios en checkboxes ----
-  function handleDeviceChange(e) {
+  // ---- Manejar cambios en checkboxes ----
+function handleDeviceChange(e) {
     const checkbox = e.target;
     const label = checkbox.closest(".setting-header").querySelector(".setting-label").textContent.trim();
 
     const anyActive = devicesContainer.querySelectorAll("input[type='checkbox']:checked").length > 0;
     startBtn.style.display = anyActive ? "inline-block" : "none";
 
+    // --------------- ACTIVAR DISPOSITIVO ---------------
     if (checkbox.checked) {
-      showDeviceToast(label, checkbox);
-    } else {
-      toastContainer.innerHTML = "";
+        showDeviceToast(label, checkbox);
+        return;
     }
-  }
+
+    // --------------- DESACTIVAR DISPOSITIVO (nuevo bloque) ---------------
+    // Quitar cualquier toast visible
+    toastContainer.innerHTML = "";
+
+    if (!window.dispositivosConfigurados) window.dispositivosConfigurados = [];
+
+    // Buscar si este dispositivo tenía configuración guardada
+    const index = window.dispositivosConfigurados.findIndex(d => d.tipo === label);
+
+    if (index !== -1) {
+        // Restar tomas usadas por ese dispositivo
+        const deviceConfig = window.dispositivosConfigurados[index];
+        let tomasLiberadas = 0;
+
+        deviceConfig.marcas.forEach(m => {
+            tomasLiberadas += m.cantidad;
+        });
+
+        tomasUsadas = Math.max(tomasUsadas - tomasLiberadas, 0);
+
+        // Eliminar del array de configurados
+        window.dispositivosConfigurados.splice(index, 1);
+
+        // Actualizar panel
+        actualizarPanelTomas();
+    }
+
+    // Ocultar botón de simulación si no queda nada activo
+    updateSimButtonVisibility();
+}
+
 
 
 
@@ -520,6 +552,39 @@ document.addEventListener("DOMContentLoaded", () => {
       renderDevices(scenario);
       actualizarPanelTomas();
     });
+  });
+
+
+  // --- Mostrar el botón de simulación solo si hay dispositivos activos ---
+  function updateSimButtonVisibility() {
+    const activeSwitches = document.querySelectorAll('.switch input:checked');
+    const simBtn = document.querySelector('.btn-simular');
+
+    if (!simBtn) return;
+
+    if (activeSwitches.length > 0) {
+      // Si hay al menos un dispositivo activo → mostrar
+      simBtn.style.display = 'block';
+      simBtn.style.opacity = '1';
+    } else {
+      // Si NO hay ninguno activo → ocultar
+      simBtn.style.opacity = '0';
+      setTimeout(() => {
+        simBtn.style.display = 'none';
+      }, 200);
+    }
+  }
+
+  // Escuchar cambios en todos los switches
+  document.addEventListener('change', (e) => {
+    if (e.target.matches('.switch input')) {
+      updateSimButtonVisibility();
+    }
+  });
+
+  // Ocultar al cargar la página
+  document.addEventListener('DOMContentLoaded', () => {
+    updateSimButtonVisibility();
   });
 
 
