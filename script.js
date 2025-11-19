@@ -436,13 +436,13 @@ document.addEventListener("DOMContentLoaded", () => {
       <label>Marca ${number}:</label>
       <select class="marca-select">
         ${marcas
-          .map(
-            (m) =>
-              `<option value="${m.marca}" data-consumo="${m.consumo}">
+        .map(
+          (m) =>
+            `<option value="${m.marca}" data-consumo="${m.consumo}">
                  ${m.marca}
                </option>`
-          )
-          .join("")}
+        )
+        .join("")}
       </select>
 
       <label>Consumo (W):</label>
@@ -642,34 +642,37 @@ document.addEventListener("DOMContentLoaded", () => {
   //  MÓDULO 13 — ENVÍO FINAL DE DATOS A SIMULACION.HTML
   // ============================================================
   document.getElementById("startSim").addEventListener("click", () => {
-    const datosSimulacion = {};
 
-    const escenario = document.getElementById("tipoEscenario")?.value || "";
-    const horas = parseFloat(document.getElementById("horasSimulacion")?.value || "1");
-    const valorKwh = parseFloat(document.getElementById("valorKwh")?.value || "0");
-
-    datosSimulacion.escenario = escenario;
-    datosSimulacion.horas = horas;
-    datosSimulacion.kwhPrice = valorKwh;
-
-    const conectores = parseInt(document.getElementById("cantidadConectores")?.value || "0");
-    if (conectores > 0) datosSimulacion.conectores = conectores;
-
-    if (escenario === "lab") {
-      const ups = parseInt(document.getElementById("cantidadUps")?.value || "0");
-      if (ups > 0) datosSimulacion.ups = ups;
-    }
-
-    const dispositivosActivos = window.dispositivosConfigurados || [];
-    if (dispositivosActivos.length === 0) {
+    if (!window.dispositivosConfigurados || window.dispositivosConfigurados.length === 0) {
       alert("⚠️ No hay dispositivos activos configurados.");
       return;
     }
 
-    datosSimulacion.devices = dispositivosActivos;
+    const datosSimulacion = {
+      escenario: document.getElementById("tipoEscenario")?.value || "",
+      horas: parseFloat(document.getElementById("horasSimulacion")?.value || "1"),
+      kwhPrice: parseFloat(document.getElementById("valorKwh")?.value || "0"),
+      conectores: parseInt(document.getElementById("cantidadConectores")?.value || "0"),
+      ups: parseInt(document.getElementById("cantidadUps")?.value || "0"),
+      devices: window.dispositivosConfigurados
+    };
 
-    localStorage.setItem("simulator_payload", JSON.stringify(datosSimulacion));
-    window.open("simulacion.html", "_blank");
+    // 🔎 LOGS DE DEPURACIÓN
+    console.log("===== DATOS A ENVIAR A LA SIMULACIÓN =====");
+    console.log("Objeto original:", datosSimulacion);
+
+    const jsonString = JSON.stringify(datosSimulacion, null, 2);
+    console.log("JSON stringify:", jsonString);
+
+    const base64 = btoa(jsonString);
+
+    console.log("URL final:", "simulacion.html?data=" + base64);
+    console.log("==========================================");
+
+    // 👉 Enviar a simulación
+    window.open("simulacion.html?data=" + base64, "_blank");
   });
+
+
 
 }); // CIERRE DEL DOMContentLoaded COMPLETO

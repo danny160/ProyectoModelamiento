@@ -13,10 +13,7 @@
     { "marca": "Lenovo", "consumo": 55, "icono": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Lenovo_Global_Corporate_Logo.png/2560px-Lenovo_Global_Corporate_Logo.png" },
     { "marca": "Dell", "consumo": 70,  "icono": "https://upload.wikimedia.org/wikipedia/commons/8/82/Dell_Logo.png"}
   ],
-
- 
-
-  "Teléfonos": [
+  "Teléfonos": [  
     { "marca": "Samsung", "consumo": 15, "icono": "https://static.vecteezy.com/system/resources/previews/020/336/037/non_2x/samsung-logo-samsung-icon-free-free-vector.jpg" },
     { "marca": "Apple", "consumo": 18, "icono": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6aPgndZ78haA2P8eDX1CcC0wafNGvrZaa7A&s" }
   ],
