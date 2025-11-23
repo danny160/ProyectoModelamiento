@@ -9,6 +9,11 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
+  <!-- Stilos css -->
+  <link rel="stylesheet" href="chabox/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+
 </head>
 
 <body>
@@ -81,7 +86,58 @@
     <div id="toastContainer" class="toast-container"></div>
   </div>
 
+  <!-- -------------------------------------------------------- -->
+
+  <!-- CHATBOT: Botón para abrir -->
+  <button type="button" class="buttonOpenChat">
+    <span>¡Hola soy OptiWatt!</span>
+    <img src="chabox/img/BOT2.png" width="75px" alt="">
+  </button>
+
+  <!-- CHATBOT: Ventana de Chat -->
+  <div class="chat">
+    <header>
+      <div class="name">
+        <p>
+          <img src="chabox/img/BOT2.png" width="45px" alt="">
+          <strong>
+            <h1 style="text-align: center; margin-left: 50px;">OptiWatt</h1>
+          </strong>
+        </p>
+      </div>
+      <div class="options">
+        <button type="button" id="clearDisplay"><i class="bi bi-arrow-clockwise"></i></button>
+        <button type="button" class="closed-chat" title="Cerrar"><i class="bi bi-x"></i></button>
+      </div>
+    </header>
+
+    <div class="display">
+      <div class="message">
+        <img src="chabox/img/BOT2.png" width="55px" alt="">
+        <div class="result">
+          <p>¡Hola! Soy OptiWatt, tu asistente en eficiencia energética.
+            <br><br>¿En qué te puedo ayudar el día de hoy?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <div class="typing" id="typing">
+        <span></span><span></span><span></span>
+      </div>
+      <textarea placeholder="¡¡Haz tu pregunta aquí!!" id="inputChatUser"></textarea>
+      <button type="button" id="chatButtonSend">
+        <i class="bi bi-send"></i>
+      </button>
+    </div>
+  </div>
+
+
   <script src="script.js"></script>
+  <script src="chabox/api_key.js"></script>
+  <script src="chabox/chatBot.js"></script>
+
 
 </body>
 
