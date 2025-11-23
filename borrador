@@ -140,62 +140,6 @@
       flex-wrap: wrap;
     }
 
-    /* TARJETA NUEVA: Modo de energía */
-    .energy-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 14px;
-      margin: 20px auto;
-      max-width: 1100px;
-      box-shadow: 0 6px 18px rgba(37, 56, 107, 0.06);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .energy-buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .energy-btn {
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      color: white;
-    }
-
-    #modoNormal {
-      background: #3d7bfd;
-    }
-
-    #modoAlto {
-      background: #e84118;
-    }
-
-    #modoBajo {
-      background: #27ae60;
-    }
-
-    .energy-btn.active {
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-      transform: translateY(-1px);
-      opacity: 0.98;
-    }
-
-    .apply-btn {
-      margin-left: 8px;
-      background: #222;
-      padding: 10px 14px;
-      border-radius: 8px;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
     /* ---- Nueva sección: minigráficas por dispositivo ---- */
     .mini-section {
       max-width: 1100px;
@@ -256,25 +200,12 @@
     }
 
     @media (max-width: 600px) {
-      .mini-area {
-        height: 66px;
-      }
+      .mini-area { height: 66px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- TARJETA NUEVA — MODO DE ENERGÍA -->
-  <div class="energy-card">
-    <h3 style="margin: 0;">Modo de Energía</h3>
-    <div class="energy-buttons">
-      <button id="modoNormal" class="energy-btn active">Modo Normal</button>
-      <button id="modoAlto" class="energy-btn">Alto Rendimiento</button>
-      <button id="modoBajo" class="energy-btn">Bajo Rendimiento</button>
-      <button id="applyModeBtn" class="apply-btn">Aplicar Modo (Regenerar)</button>
-    </div>
-  </div>
-
   <div class="container">
     <div class="card">
       <header>
@@ -345,7 +276,6 @@
 
   <script>
     (function () {
-      // parse data
       const params = new URLSearchParams(window.location.search);
       const encoded = params.get("data");
 
@@ -362,7 +292,6 @@
         return;
       }
 
-      // base settings
       const horas = Number(payload.horas) || 1;
       const kwhPrice = Number(payload.kwhPrice) || 0;
       const escenario = payload.escenario || "Desconocido";
@@ -371,21 +300,16 @@
         `Escenario: ${escenario.charAt(0).toUpperCase() + escenario.slice(1)}`;
       document.getElementById("hoursVal").textContent = horas + " h";
 
-      // build devices list (preservamos la estructura original)
       const devices = [];
       (payload.devices || []).forEach(dev => {
         if (dev.marcas) {
           dev.marcas.forEach(m => {
             if (m.cantidad > 0 && m.consumo > 0) {
-              const id = (dev.tipo + "_" + m.marca).toLowerCase().replace(/\s+/g, "_");
               devices.push({
-                id: id,
-                tipo: dev.tipo,
+                id: (dev.tipo + "_" + m.marca).toLowerCase().replace(/\s+/g, "_"),
                 label: `${dev.tipo} (${m.marca})`,
                 watts: m.consumo,
-                count: m.cantidad,
-                baseWatts: m.consumo,    // original per-device watt value
-                currentWatts: m.consumo  // will be modified by modes
+                count: m.cantidad
               });
             }
           });
@@ -398,7 +322,6 @@
         return;
       }
 
-      // elements
       const accWhEl = document.getElementById("accWh");
       const accKwhEl = document.getElementById("accKwh");
       const co2El = document.getElementById("co2");
@@ -408,7 +331,6 @@
       const devicePctContainer = document.getElementById("devicePctContainer");
       const miniGrid = document.getElementById("miniGrid");
 
-      // render original percentage cards (structure preserved)
       devicePctContainer.innerHTML = "";
       devices.forEach(d => {
         const card = document.createElement("div");
@@ -424,114 +346,65 @@
           maximumFractionDigits: 0
         }).format(Math.round(v));
 
-      // Globals for main chart so we can recreate on regenerate
-      let svg, chart, areaPath, linePath, pointsGroup, focusCircle, x, y, xAxisGroup, yAxisGroup, areaGen, lineGen, defs, tooltip;
-      const svgRootSelector = "#svgRoot";
+      // --- Gráfica principal ---
+      const svgRoot = d3.select("#svgRoot");
+      // usar node DOM para obtener dimensiones (evita errores con .node)
+      const svgRootNode = document.getElementById("svgRoot");
+      const width = svgRootNode.clientWidth || 900;
+      const height = svgRootNode.clientHeight || 380;
+      const margin = { top: 24, right: 36, bottom: 44, left: 60 };
+      const innerW = width - margin.left - margin.right;
+      const innerH = height - margin.top - margin.bottom;
 
-      function createMainChart() {
-        // remove previous svg if any
-        d3.select(svgRootSelector).selectAll("*").remove();
+      const svg = svgRoot.append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style("display", "block");
 
-        const svgRoot = d3.select(svgRootSelector);
-        const svgRootNode = document.getElementById("svgRoot");
-        const width = svgRootNode.clientWidth || 900;
-        const height = svgRootNode.clientHeight || 380;
-        const margin = { top: 24, right: 36, bottom: 44, left: 60 };
-        const innerW = width - margin.left - margin.right;
-        const innerH = height - margin.top - margin.bottom;
+      const chart = svg.append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        svg = svgRoot.append("svg")
-          .attr("width", width)
-          .attr("height", height)
-          .style("display", "block");
+      const defs = svg.append("defs");
+      const grad = defs.append("linearGradient")
+        .attr("id", "areaGrad")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "0%")
+        .attr("y2", "100%");
+      grad.append("stop").attr("offset", "0%").attr("stop-color", "#0077ff").attr("stop-opacity", 0.5);
+      grad.append("stop").attr("offset", "100%").attr("stop-color", "#00ffaa").attr("stop-opacity", 0.1);
 
-        chart = svg.append("g")
-          .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        defs = svg.append("defs");
-        const grad = defs.append("linearGradient")
-          .attr("id", "areaGrad")
-          .attr("x1", "0%")
-          .attr("y1", "0%")
-          .attr("x2", "0%")
-          .attr("y2", "100%");
-        grad.append("stop").attr("offset", "0%").attr("stop-color", "#0077ff").attr("stop-opacity", 0.5);
-        grad.append("stop").attr("offset", "100%").attr("stop-color", "#00ffaa").attr("stop-opacity", 0.1);
-
-        const marginRef = margin; // for closures
-        x = d3.scaleLinear().range([0, innerW]).domain([0, horas]);
-        y = d3.scaleLinear().range([innerH, 0]).domain([0, 1]);
-
-        xAxisGroup = chart.append("g").attr("transform", `translate(0,${innerH})`);
-        yAxisGroup = chart.append("g");
-
-        xAxisGroup.call(d3.axisBottom(x).ticks(Math.min(horas, 12)).tickFormat(d => d + "h"));
-        yAxisGroup.call(d3.axisLeft(y).ticks(6));
-
-        areaGen = d3.area().x(d => x(d.hour)).y0(innerH).y1(d => y(d.kwh)).curve(d3.curveMonotoneX);
-        lineGen = d3.line().x(d => x(d.hour)).y(d => y(d.kwh)).curve(d3.curveMonotoneX);
-
-        areaPath = chart.append("path").datum(data).attr("fill", "url(#areaGrad)").attr("opacity", 0.95);
-        linePath = chart.append("path").datum(data)
-          .attr("fill", "none")
-          .attr("stroke", "#0044cc")
-          .attr("stroke-width", 3);
-
-        pointsGroup = chart.append("g");
-
-        focusCircle = chart.append("circle")
-          .attr("r", 6)
-          .attr("fill", "#00cc88")
-          .attr("stroke", "#fff")
-          .attr("stroke-width", 2)
-          .style("opacity", 0);
-
-        tooltip = d3.select("body").append("div")
-          .attr("class", "ow-tooltip");
-
-        // attach interactions
-        svg.on("mousemove", function (event) {
-          const [mx] = d3.pointer(event, svg.node());
-          const xr = mx - marginRef.left;
-          if (xr < 0 || xr > innerW) {
-            focusCircle.style("opacity", 0);
-            tooltip.style("opacity", 0);
-            return;
-          }
-
-          const hourVal = x.invert(xr);
-          const closest = data.reduce((a, b) =>
-            (Math.abs(b.hour - hourVal) < Math.abs(a.hour - hourVal) ? b : a)
-          );
-
-          focusCircle
-            .attr("cx", x(closest.hour))
-            .attr("cy", y(closest.kwh))
-            .style("opacity", 1);
-
-          tooltip
-            .style("left", (event.pageX + 18) + "px")
-            .style("top", (event.pageY - 28) + "px")
-            .style("opacity", 1)
-            .html(`
-              <strong>Hora:</strong> ${closest.hour} h<br>
-              <strong>KWh acumulado:</strong> ${closest.kwh.toFixed(3)} kWh<br>
-              <strong>Wh acumulados:</strong> ${(closest.kwh * 1000).toFixed(0)} Wh<br>
-              <strong>CO₂ generado:</strong> ${(closest.kwh * 0.43).toFixed(3)} kg<br>
-              <strong>Costo acumulado:</strong>
-                ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
-                  .format(closest.kwh * kwhPrice)}
-            `);
-        });
-
-        svg.on("mouseleave", function () {
-          focusCircle.style("opacity", 0);
-          tooltip.style("opacity", 0);
-        });
-      } // end createMainChart
-
-      // initial data holder for main chart
       let data = [{ hour: 0, kwh: 0 }];
+
+      const x = d3.scaleLinear().range([0, innerW]).domain([0, horas]);
+      const y = d3.scaleLinear().range([innerH, 0]).domain([0, 1]);
+
+      const xAxisGroup = chart.append("g").attr("transform", `translate(0,${innerH})`);
+      const yAxisGroup = chart.append("g");
+
+      xAxisGroup.call(d3.axisBottom(x).ticks(Math.min(horas, 12)).tickFormat(d => d + "h"));
+      yAxisGroup.call(d3.axisLeft(y).ticks(6));
+
+      const areaGen = d3.area().x(d => x(d.hour)).y0(innerH).y1(d => y(d.kwh)).curve(d3.curveMonotoneX);
+      const lineGen = d3.line().x(d => x(d.hour)).y(d => y(d.kwh)).curve(d3.curveMonotoneX);
+
+      const areaPath = chart.append("path").datum(data).attr("fill", "url(#areaGrad)").attr("opacity", 0.95);
+      const linePath = chart.append("path").datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#0044cc")
+        .attr("stroke-width", 3);
+
+      const pointsGroup = chart.append("g");
+
+      const focusCircle = chart.append("circle")
+        .attr("r", 6)
+        .attr("fill", "#00cc88")
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 2)
+        .style("opacity", 0);
+
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "ow-tooltip");
 
       function animateDraw() {
         const node = linePath.node();
@@ -578,15 +451,56 @@
         animateDraw();
       }
 
+      svg.on("mousemove", function (event) {
+        const [mx] = d3.pointer(event, svg.node());
+        const xr = mx - margin.left;
+        if (xr < 0 || xr > innerW) {
+          focusCircle.style("opacity", 0);
+          tooltip.style("opacity", 0);
+          return;
+        }
+
+        const hourVal = x.invert(xr);
+        const closest = data.reduce((a, b) =>
+          (Math.abs(b.hour - hourVal) < Math.abs(a.hour - hourVal) ? b : a)
+        );
+
+        focusCircle
+          .attr("cx", x(closest.hour))
+          .attr("cy", y(closest.kwh))
+          .style("opacity", 1);
+
+        tooltip
+          .style("left", (event.pageX + 18) + "px")
+          .style("top", (event.pageY - 28) + "px")
+          .style("opacity", 1)
+          .html(`
+            <strong>Hora:</strong> ${closest.hour} h<br>
+            <strong>KWh acumulado:</strong> ${closest.kwh.toFixed(3)} kWh<br>
+            <strong>Wh acumulados:</strong> ${(closest.kwh * 1000).toFixed(0)} Wh<br>
+            <strong>CO₂ generado:</strong> ${(closest.kwh * 0.43).toFixed(3)} kg<br>
+            <strong>Costo acumulado:</strong>
+              ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
+                .format(closest.kwh * kwhPrice)}
+          `);
+      });
+
+      svg.on("mouseleave", function () {
+        focusCircle.style("opacity", 0);
+        tooltip.style("opacity", 0);
+      });
+
+      updateChart();
+
       // ---------------- Miniareas (sección separada) -------------------
       // Mantenemos series por dispositivo: acumulado kWh por hora
       const deviceMap = {};
       devices.forEach(d => {
-        const perHourKwh = (d.currentWatts * d.count) / 1000;
+        const perHourKwh = (d.watts * d.count) / 1000;
         deviceMap[d.id] = {
-          meta: d,                  // referencia al objeto device
-          series: [0],              // acumulado por hora
-          hourly: perHourKwh       // kWh por hora según currentWatts
+          meta: d,
+          series: [0], // acumulado por hora
+          hourly: perHourKwh
         };
       });
 
@@ -594,30 +508,28 @@
       const MAX_POINTS = Math.min(horas, 72);
 
       // crear tarjetas en miniGrid (sección separada)
-      function buildMiniGrid() {
-        miniGrid.innerHTML = "";
-        devices.forEach(d => {
-          const mc = document.createElement("div");
-          mc.className = "mini-card";
-          mc.id = "miniCard_" + d.id;
-          mc.innerHTML = `
-            <div class="mini-header">
-              <div>
-                <div class="label">${d.label}</div>
-                <div class="small-val">${d.count} × ${d.watts}W</div>
-              </div>
-              <div style="text-align:right">
-                <div class="label">Contribución</div>
-                <div id="pctMini${d.id}" class="small-val">0%</div>
-              </div>
+      miniGrid.innerHTML = "";
+      devices.forEach(d => {
+        const mc = document.createElement("div");
+        mc.className = "mini-card";
+        mc.id = "miniCard_" + d.id;
+        mc.innerHTML = `
+          <div class="mini-header">
+            <div>
+              <div class="label">${d.label}</div>
+              <div class="small-val">${d.count} × ${d.watts}W</div>
             </div>
-            <svg id="miniArea_${d.id}" class="mini-area"></svg>
-          `;
-          miniGrid.appendChild(mc);
+            <div style="text-align:right">
+              <div class="label">Contribución</div>
+              <div id="pctMini${d.id}" class="small-val">0%</div>
+            </div>
+          </div>
+          <svg id="miniArea_${d.id}" class="mini-area"></svg>
+        `;
+        miniGrid.appendChild(mc);
 
-          initMiniArea(d.id);
-        });
-      }
+        initMiniArea(d.id);
+      });
 
       function initMiniArea(id) {
         const svg = d3.select("#miniArea_" + id);
@@ -677,109 +589,25 @@
         });
       }
 
-      // ----------------- MODOS DE ENERGÍA -----------------
-      // factorEnergia: 1 = normal, >1 = más consumo, <1 = menos consumo
-      let factorEnergia = 1;
-
-      const btnNormal = document.getElementById("modoNormal");
-      const btnAlto = document.getElementById("modoAlto");
-      const btnBajo = document.getElementById("modoBajo");
-      const btnApply = document.getElementById("applyModeBtn");
-
-      function setActiveButton(activeBtn) {
-        [btnNormal, btnAlto, btnBajo].forEach(b => b.classList.remove("active"));
-        if (activeBtn) activeBtn.classList.add("active");
-      }
-
-      btnNormal.addEventListener("click", () => { factorEnergia = 1; setActiveButton(btnNormal); });
-      btnAlto.addEventListener("click", () => { factorEnergia = 1.5; setActiveButton(btnAlto); });
-      btnBajo.addEventListener("click", () => { factorEnergia = 0.6; setActiveButton(btnBajo); });
-
-      // Apply mode and regenerate content
-      btnApply.addEventListener("click", () => {
-        regenerateSimulation();
-      });
-
-      function updatePercentagesImmediate() {
-        const totalPerHour = devices.reduce((s, d) => s + (d.currentWatts * d.count / 1000), 0);
-        devices.forEach(d => {
-          const devKwhPerH = (d.currentWatts * d.count / 1000);
-          const pct = totalPerHour > 0 ? (devKwhPerH / totalPerHour) * 100 : 0;
-          const el = document.getElementById("pct" + d.id);
-          if (el) el.textContent = pct.toFixed(1) + "%";
-          const miniEl = document.getElementById("pctMini" + d.id);
-          if (miniEl) miniEl.textContent = pct.toFixed(1) + "%";
-        });
-      }
-
-      // initial accStep based on baseWatts/currentWatts
-      let accStep = devices.reduce((s, d) => s + (d.currentWatts * d.count / 1000), 0);
-
-      // ensure deviceMap entries hourly reflect currentWatts initially
-      devices.forEach(d => {
-        const entry = deviceMap[d.id];
-        if (entry) entry.hourly = (d.currentWatts * d.count) / 1000;
-      });
-
-      // Simulation control variables
-      let CO2_FACTOR = 0.43;
+      // ---------------- Simulación (actualiza todo) ----------------
+      const CO2_FACTOR = 0.43;
       let hour = 0;
       let kwhAcc = 0;
-      let intervalId = null;
 
-      // create chart and mini-grid initially
-      createMainChart();
-      buildMiniGrid();
+      const accStep = devices.reduce((s, d) => s + (d.watts * d.count / 1000), 0);
 
-      function startSimulation() {
-        // clear any existing interval
-        if (intervalId) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-        intervalId = setInterval(simulationStep, 700);
-      }
-
-      function stopSimulation() {
-        if (intervalId) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-      }
-
-      function resetSimulationState() {
-        // reset values
-        hour = 0;
-        kwhAcc = 0;
-        data = [{ hour: 0, kwh: 0 }];
-
-        // reset UI counters
-        accWhEl.textContent = "0 Wh";
-        accKwhEl.textContent = "0.000 kWh";
-        co2El.textContent = "0.000 kg";
-        costDayEl.textContent = fmtCOP(0);
-        costWeekEl.textContent = fmtCOP(0);
-        costMonthEl.textContent = fmtCOP(0);
-
-        // reset minigraph series
-        Object.values(deviceMap).forEach(entry => {
-          entry.series = [0];
-        });
-      }
-
-      function simulationStep() {
+      const interval = setInterval(() => {
         if (hour >= horas) {
-          stopSimulation();
+          clearInterval(interval);
           return;
         }
 
         hour++;
         kwhAcc = accStep * hour;
 
-        // update device series
+        // actualizar series por dispositivo (acumulado)
         devices.forEach(d => {
           const entry = deviceMap[d.id];
-          if (!entry) return;
           const newAccum = entry.hourly * hour; // acumulado kWh
           entry.series.push(newAccum);
           if (entry.series.length > MAX_POINTS) {
@@ -800,67 +628,26 @@
         costWeekEl.textContent = fmtCOP(costWeek);
         costMonthEl.textContent = fmtCOP(costMonth);
 
-        // update percentages
-        const totalPerHourNow = devices.reduce((s, d) => s + (d.currentWatts * d.count / 1000), 0);
+        // actualizar porcentaje en la sección original (sin tocar estructura)
         devices.forEach(d => {
-          const devKwhPerH = (d.currentWatts * d.count / 1000);
-          const pct = totalPerHourNow > 0 ? (devKwhPerH / totalPerHourNow) * 100 : 0;
+          const devKwh = (d.watts * d.count / 1000) * hour;
+          const pct = (kwhAcc > 0) ? (devKwh / kwhAcc) * 100 : 0;
           const el = document.getElementById("pct" + d.id);
           if (el) el.textContent = pct.toFixed(1) + "%";
         });
 
-        // update main chart and mini areas
+        // actualizar gráfica principal
         data.push({ hour: hour, kwh: kwhAcc });
         updateChart();
+
+        // actualizar miniareas en la sección separada
         updateMiniAreas();
-      }
 
-      // initial run
-      startSimulation();
+      }, 700);
 
-      // regenerate simulation based on current factorEnergia
-      function regenerateSimulation() {
-        // stop
-        stopSimulation();
-
-        // apply factor to devices' currentWatts
-        devices.forEach(d => {
-          d.currentWatts = d.baseWatts * factorEnergia;
-        });
-
-        // update deviceMap hourly values
-        devices.forEach(d => {
-          const entry = deviceMap[d.id];
-          if (entry) entry.hourly = (d.currentWatts * d.count) / 1000;
-        });
-
-        // recalc accStep
-        accStep = devices.reduce((s, d) => s + (d.currentWatts * d.count / 1000), 0);
-
-        // reset state and rebuild chart & mini-grid
-        // remove tooltip to avoid duplicates
-        d3.selectAll(".ow-tooltip").remove();
-        resetSimulationState();
-
-        // recreate main chart (clears svg) and mini grid then start
-        createMainChart();
-        buildMiniGrid();
-
-        // update immediate percentages display
-        updatePercentagesImmediate();
-        updateMiniAreas();
-        updateChart();
-
-        // start simulation anew
-        startSimulation();
-      }
-
-      // buttons behavior for restart/back
       document.getElementById("restartBtn").onclick = () => location.reload();
       document.getElementById("backBtn").onclick = () => window.history.back();
 
-      // set default active button visual (Modo Normal)
-      setActiveButton(btnNormal);
     })();
   </script>
 </body>
