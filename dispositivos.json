@@ -1,35 +1,118 @@
 {
   "Televisores": [
-    { "marca": "Samsung", "consumo": 150, "icono": "https://static.vecteezy.com/system/resources/previews/020/336/037/non_2x/samsung-logo-samsung-icon-free-free-vector.jpg " },
-    { "marca": "LG", "consumo": 130, "icono": "https://upload.wikimedia.org/wikipedia/commons/2/2e/LG_logo.png" },
-    { "marca": "Sony", "consumo": 160, "icono": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Sony_Logo.png" }
+    { "marca": "Samsung", "consumo": 150 },
+    { "marca": "LG", "consumo": 130 },
+    { "marca": "Sony", "consumo": 160 },
+    { "marca": "TCL", "consumo": 120 },
+    { "marca": "Hisense", "consumo": 110 },
+    { "marca": "Panasonic", "consumo": 140 },
+    { "marca": "Sharp", "consumo": 135 },
+    { "marca": "Vizio", "consumo": 125 },
+    { "marca": "Philips", "consumo": 128 },
+    { "marca": "Grundig", "consumo": 132 },
+    { "marca": "Changhong", "consumo": 115 },
+    { "marca": "Haier", "consumo": 118 }
   ],
+
   "Proyectores": [
-    { "marca": "Epson", "consumo": 250, "icono": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Epson_logo.png" },
-    { "marca": "BenQ", "consumo": 230, "icono": "https://upload.wikimedia.org/wikipedia/commons/4/4c/BenQ_logo.png" }
+    { "marca": "Epson", "consumo": 250 },
+    { "marca": "BenQ", "consumo": 230 },
+    { "marca": "Optoma", "consumo": 240 },
+    { "marca": "ViewSonic", "consumo": 220 },
+    { "marca": "Acer", "consumo": 210 },
+    { "marca": "LG", "consumo": 225 },
+    { "marca": "Sony", "consumo": 235 },
+    { "marca": "Panasonic", "consumo": 245 },
+    { "marca": "Vivitek", "consumo": 215 },
+    { "marca": "NEC", "consumo": 238 }
   ],
+
   "Portátiles": [
-    { "marca": "HP", "consumo": 60, "icono": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Philips_logo_new.svg/1200px-Philips_logo_new.svg.png"  },
-    { "marca": "Lenovo", "consumo": 55, "icono": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Lenovo_Global_Corporate_Logo.png/2560px-Lenovo_Global_Corporate_Logo.png" },
-    { "marca": "Dell", "consumo": 70,  "icono": "https://upload.wikimedia.org/wikipedia/commons/8/82/Dell_Logo.png"}
+    { "marca": "HP", "consumo": 60 },
+    { "marca": "Lenovo", "consumo": 55 },
+    { "marca": "Dell", "consumo": 70 },
+    { "marca": "Acer", "consumo": 50 },
+    { "marca": "Asus", "consumo": 48 },
+    { "marca": "Apple", "consumo": 45 },
+    { "marca": "MSI", "consumo": 65 },
+    { "marca": "Razer", "consumo": 68 },
+    { "marca": "Samsung", "consumo": 52 },
+    { "marca": "Toshiba", "consumo": 58 },
+    { "marca": "Huawei", "consumo": 50 }
   ],
-  "Teléfonos": [  
-    { "marca": "Samsung", "consumo": 15, "icono": "https://static.vecteezy.com/system/resources/previews/020/336/037/non_2x/samsung-logo-samsung-icon-free-free-vector.jpg" },
-    { "marca": "Apple", "consumo": 18, "icono": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6aPgndZ78haA2P8eDX1CcC0wafNGvrZaa7A&s" }
+
+  "Teléfonos": [
+    { "marca": "Samsung", "consumo": 15 },
+    { "marca": "Apple", "consumo": 18 },
+    { "marca": "Xiaomi", "consumo": 14 },
+    { "marca": "Motorola", "consumo": 13 },
+    { "marca": "Huawei", "consumo": 12 },
+    { "marca": "OnePlus", "consumo": 14 },
+    { "marca": "Nokia", "consumo": 11 },
+    { "marca": "Realme", "consumo": 13 },
+    { "marca": "Oppo", "consumo": 14 },
+    { "marca": "Vivo", "consumo": 12 },
+    { "marca": "Google", "consumo": 16 }
   ],
+
   "Luces": [
-    { "marca": "Philips", "consumo": 20, "icono": "https://upload.wikimedia.org/wikipedia/commons/3/36/Philips_logo.png" },
-    { "marca": "GE", "consumo": 18, "icono": "https://upload.wikimedia.org/wikipedia/commons/0/09/General_Electric_logo.svg" }
+    { "marca": "Philips", "consumo": 20 },
+    { "marca": "GE", "consumo": 18 },
+    { "marca": "Osram", "consumo": 15 },
+    { "marca": "Sylvania", "consumo": 17 },
+    { "marca": "Feit", "consumo": 16 },
+    { "marca": "Ikea", "consumo": 14 },
+    { "marca": "Cree", "consumo": 19 },
+    { "marca": "Panasonic", "consumo": 18 },
+    { "marca": "Havells", "consumo": 16 },
+    { "marca": "Yeelight", "consumo": 15 }
   ],
+
   "Pantallas OneScreen": [
-    { "marca": "OneScreen", "consumo": 200, "icono": "https://upload.wikimedia.org/wikipedia/commons/4/45/OneScreen_Logo.png" }
+    { "marca": "OneScreen", "consumo": 200 },
+    { "marca": "ViewSonic", "consumo": 190 },
+    { "marca": "BenQ", "consumo": 195 },
+    { "marca": "Epson", "consumo": 185 },
+    { "marca": "Acer", "consumo": 180 }
   ],
+
   "Computadores de mesa": [
-    { "marca": "Dell", "consumo": 120, "icono": "https://upload.wikimedia.org/wikipedia/commons/4/48/Dell_Logo.svg" },
-    { "marca": "HP", "consumo": 110, "icono": "https://upload.wikimedia.org/wikipedia/commons/3/33/HP_logo_2012.svg" }
+    { "marca": "Dell", "consumo": 120 },
+    { "marca": "HP", "consumo": 110 },
+    { "marca": "Lenovo", "consumo": 115 },
+    { "marca": "Acer", "consumo": 105 },
+    { "marca": "Asus", "consumo": 112 },
+    { "marca": "MSI", "consumo": 125 },
+    { "marca": "Apple", "consumo": 100 },
+    { "marca": "Corsair", "consumo": 130 },
+    { "marca": "Intel NUC", "consumo": 95 },
+    { "marca": "CyberPower", "consumo": 128 }
   ],
+
   "Router": [
-    { "marca": "TP-Link", "consumo": 12, "icono": "https://upload.wikimedia.org/wikipedia/commons/0/03/TP-Link_logo.svg" },
-    { "marca": "Huawei", "consumo": 10, "icono": "https://upload.wikimedia.org/wikipedia/commons/5/53/Huawei_logo.svg" }
+    { "marca": "TP-Link", "consumo": 12 },
+    { "marca": "Huawei", "consumo": 10 },
+    { "marca": "Netgear", "consumo": 11 },
+    { "marca": "Asus", "consumo": 9 },
+    { "marca": "D-Link", "consumo": 10 },
+    { "marca": "Linksys", "consumo": 11 },
+    { "marca": "Tenda", "consumo": 8 },
+    { "marca": "Xiaomi", "consumo": 9 },
+    { "marca": "MikroTik", "consumo": 10 },
+    { "marca": "Ubiquiti", "consumo": 11 }
+  ],
+
+  "Aires acondicionados": [
+    { "marca": "Samsung", "consumo": 900 },
+    { "marca": "LG", "consumo": 850 },
+    { "marca": "Daikin", "consumo": 920 },
+    { "marca": "Whirlpool", "consumo": 880 },
+    { "marca": "Midea", "consumo": 870 },
+    { "marca": "Panasonic", "consumo": 910 },
+    { "marca": "Carrier", "consumo": 895 },
+    { "marca": "Hitachi", "consumo": 905 },
+    { "marca": "Toshiba", "consumo": 885 },
+    { "marca": "Gree", "consumo": 860 },
+    { "marca": "Fujitsu", "consumo": 900 }
   ]
 }

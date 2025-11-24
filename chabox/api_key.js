@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyBxNcL_S6ya8p_6cfvomi-0wOsWqWIbXo4";
+const API_KEY = "AIzaSyCripuDifkcWZYnms9nA2MCuUKIZ8c0fUo";
 const PROMPT = `
 Actúa como un asistente virtual llamado **OptiWatt**, especializado únicamente en modelamiento, simulación y optimización del consumo energético en salones de clase.
 
