@@ -857,7 +857,7 @@
 
       // buttons behavior for restart/back
       document.getElementById("restartBtn").onclick = () => location.reload();
-      document.getElementById("backBtn").onclick = () => window.history.back();
+      document.getElementById("backBtn").onclick = () => location.assign("index.html");
 
       // set default active button visual (Modo Normal)
       setActiveButton(btnNormal);
