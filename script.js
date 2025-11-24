@@ -432,38 +432,70 @@ document.addEventListener("DOMContentLoaded", () => {
     block.className = "marca-section";
     const marcas = deviceData[deviceLabel] || [];
 
+    // Iconos generales por tipo de dispositivo
+    const deviceIconMap = {
+      "Televisores": "fas fa-tv",
+      "Portátiles": "fas fa-laptop",
+      "Computadores de mesa": "fas fa-desktop",
+      "Teléfonos": "fas fa-mobile-alt",
+      "Luces": "fas fa-lightbulb",
+      "Router": "fas fa-wifi",
+      "Aires acondicionados": "fas fa-fan",
+      "Pantallas OneScreen": "fas fa-tv"
+    };
+    const genericIcon = deviceIconMap[deviceLabel] || "fas fa-question";
+
+    // Iconos por marca (si quieres puedes completar algunas marcas)
+    const brandIcons = {
+      "Samsung": "fab fa-samsung",
+      "LG": "fab fa-lg",
+      "Apple": "fab fa-apple",
+      "HP": "fab fa-hp",
+      "Motorola": "fab fa-motorola"
+      // resto opcional
+    };
+
+    // Determinar icono inicial
+    const initialBrand = marcas[number - 1]?.marca || marcas[0]?.marca;
+    const initialIcon = brandIcons[initialBrand] || genericIcon;
+
     block.innerHTML = `
-      <label>Marca ${number}:</label>
+    <label>Marca ${number}:</label>
+    <div style="display:flex; align-items:center; gap:10px;">
       <select class="marca-select">
-        ${marcas
-        .map(
-          (m) =>
-            `<option value="${m.marca}" data-consumo="${m.consumo}">
-                 ${m.marca}
-               </option>`
-        )
-        .join("")}
+        ${marcas.map((m) => `<option value="${m.marca}" data-consumo="${m.consumo}">${m.marca}</option>`).join("")}
       </select>
+      <i class="marca-icon ${initialIcon}" style="font-size:24px; color:#25386b;"></i>
+    </div>
 
-      <label>Consumo (W):</label>
-      <input type="number" class="consumo-input" placeholder="Ej. 100" />
+    <label>Consumo (W):</label>
+    <input type="number" class="consumo-input" placeholder="Ej. 100" />
 
-      <label>Cantidad:</label>
-      <input type="number" class="cantidad-input" placeholder="Ej. 2" min="1" value="1" />
-    `;
+    <label>Cantidad:</label>
+    <input type="number" class="cantidad-input" placeholder="Ej. 2" min="1" value="1" />
+  `;
 
     const select = block.querySelector(".marca-select");
     const consumo = block.querySelector(".consumo-input");
+    const icon = block.querySelector(".marca-icon");
 
+    // Inicializar consumo
     if (marcas.length > 0)
       consumo.value = marcas[number - 1]?.consumo || marcas[0].consumo;
 
+    // Al cambiar la marca, actualizar consumo y el icono (si tiene)
     select.addEventListener("change", (e) => {
-      consumo.value = e.target.selectedOptions[0].dataset.consumo;
+      const selected = e.target.selectedOptions[0];
+      consumo.value = selected.dataset.consumo;
+
+      // Icono híbrido: marca o genérico
+      icon.className = `marca-icon ${brandIcons[selected.value] || genericIcon}`;
     });
 
     return block;
   }
+
+
 
 
   // ============================================================
